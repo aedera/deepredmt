@@ -195,14 +195,17 @@ def fit(train_gen,
                 # validation step
                 valid_loss, metrs = epoch_step(valid_gen, test_step, model, opt, False)
                 vl_losses.append(valid_loss)
+
                 # save metrics
                 for i in range(num_classes):
                         for k in ('sen', 'pre'):
                                 vl_metr[i][k].append(metrs[i][k])
+
                 # stop learning if there are nan values
                 if math.isnan(tr_losses[-1]) or math.isnan(vl_losses[-1]):
                         print('Stopping learning. Nan values found.')
                         break
+
                 # one epoch end
                 if valid_loss <= best_valid_loss:
                         checkpoint_str = '* ---> Saving model as %.4f is less than %.4f\n' % (valid_loss, best_valid_loss)
@@ -244,7 +247,7 @@ def fit(train_gen,
         tr_log_fd.close()
         vl_log_fd.close()
 
-        # return model with best performance on the valid set
+        # load model with best performance on the valid set
         model = tf.keras.models.load_model(model_fout, compile=False)
 
         return model

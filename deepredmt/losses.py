@@ -2,15 +2,15 @@ import tensorflow as tf
 
 HYPERPARAM = 0.0001
 
-def classification_loss_fn(class_true,
-                           class_pred,
+def classification_loss_fn(y_true,
+                           y_pred,
                            ext_true,
                            label_smoothing=True):
         # label smoothing
         if label_smoothing:
-                class_true = ext_true * class_true
-        class_loss = tf.keras.losses.categorical_crossentropy(class_true, class_pred)
-        return tf.reduce_mean(class_loss)
+                y_true = tf.math.multiply(ext_true, y_true)
+        class_loss = tf.keras.losses.categorical_crossentropy(y_true, y_pred)
+        return tf.reduce_mean(y_loss)
 
 def reconstruction_loss_fn(true, recon):
         recon_loss = tf.keras.losses.binary_crossentropy(true, recon)
