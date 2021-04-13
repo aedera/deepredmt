@@ -54,7 +54,7 @@ def train_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
         with tf.GradientTape() as tape:
-                out = M(batch)
+                out = model(batch)
                 recon = out[0]
                 class_pred = out[2]
                 # batch_reconstruction does not have occlusion
@@ -63,11 +63,11 @@ def train_step(ds, model, opt):
                                                            class_pred,
                                                            ext_true,
                                                            _label_smoothing)
-                regularization = losses.regularization(M.trainable_variables)
+                regularization = losses.regularization(model.trainable_variables)
                 loss = recon_loss + class_loss + regularization
-        grads = tape.gradient(loss, M.trainable_variables)
+        grads = tape.gradient(loss, model.trainable_variables)
         # apply gradient to main model
-        opt.apply_gradients(zip(grads, M.trainable_variables))
+        opt.apply_gradients(zip(grads, model.trainable_variables))
         norm = tf.linalg.global_norm(grads)
         del tape  # Drop reference to the tape
 
@@ -76,7 +76,7 @@ def train_step(ds, model, opt):
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
-        out = M.predict(batch)
+        out = model.predict(batch)
         recon = out[0]
         class_pred = out[2]
         recon_loss = losses.reconstruction_loss_fn(batch, recon)
@@ -84,7 +84,7 @@ def test_step(ds, model, opt):
                                                    class_pred,
                                                    ext_true,
                                                    _label_smoothing)
-        regularization = losses.regularization(M.trainable_variables)
+        regularization = losses.regularization(model.trainable_variables)
         loss = recon_loss + class_loss + regularization
         norm = 0.0
 
