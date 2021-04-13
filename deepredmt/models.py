@@ -35,7 +35,7 @@ def CAE(input_shape, num_hunits, filters):
                                bias_initializer='zeros',
                                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='same')(x)
-    x = Activation('relu')(x)
+    x = tf.keras.layers.Activation('relu')(x)
     # second convolutional layer
     x = tf.keras.layers.Conv1D(filters[0],
                                3,
