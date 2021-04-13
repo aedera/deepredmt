@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.keras import backend as K
 
 class L2Normalization(tf.keras.layers.Layer):
     def __init__(self, axis, **kwargs):
