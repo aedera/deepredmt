@@ -140,7 +140,6 @@ def print_epoch_progress(tr_loss,
 def fit(train_gen,
         valid_gen,
         num_hidden_units=5,
-        data_augmentation=True,
         label_smoothing=True,
         epochs=100,
         tr_log_fout=None,
@@ -171,10 +170,10 @@ def fit(train_gen,
         # test_losses = []
         tr_metr = [{'sen':[], 'pre':[]} for i in range(num_classes)]
         vl_metr = [{'sen':[], 'pre':[]} for i in range(num_classes)]
-        best_valid_loss = float(math.inf)
+
+        best_valid_loss = np.inf
         patience = 3 # number of epochs with no improvement
         patience_cnt = 0
-        checkpointing_string = ''
         lr_decay = 0.1
 
         global epoch_counter
@@ -209,23 +208,20 @@ def fit(train_gen,
                 # one epoch end
                 if valid_loss <= best_valid_loss:
                         checkpoint_str = '* ---> Saving model as %.4f is less than %.4f\n' % (valid_loss, best_valid_loss)
-                        for i in range(num_classes):
-                                checkpoint_str += '  tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
-                        print(checkpoint_str.strip())
                         best_valid_loss = valid_loss
                         model.save(model_fout)
                         patience_cnt = 0
                 if valid_loss > best_valid_loss:
                         patience_cnt += 1
-                        #if patience_cnt >= tf.math.ceil(patience/decay_counter):
+
                         if patience_cnt >= patience:
-                                print("Reducing learning rate")
                                 if decay_counter > max_num_attempts:
                                         break
                                 else:
                                         decay_counter +=1
                                         patience_cnt = 0
                                         opt.lr = opt.lr * lr_decay
+                                        print("Learning rate reduced\n")
                 # show progress
                 if True : #epoch_counter % 10 == 0:
                         print_epoch_progress(tr_losses, vl_losses, tr_metr, vl_metr)
