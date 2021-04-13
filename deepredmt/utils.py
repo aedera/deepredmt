@@ -161,7 +161,7 @@ class DataGenerator():
                 # element in the one-hot vector). Note that occluded regions
                 # are also marked by Ns
                 X = tf.slice(X, [0, 0, 1], [X.shape[0], X.shape[1], X.shape[2] - 1])
-                Y = tf.convert_to_tensor(keras.utils.to_categorical(Y, num_classes=self.num_labels))
+                Y = tf.convert_to_tensor(tf.keras.utils.to_categorical(Y, num_classes=self.num_labels))
                 Y = tf.cast(Y, tf.float32)
                 # retrieve editing extents (used for label smoothing)
                 Z = np.array(list(map(list, self.data[idx, 2])))
