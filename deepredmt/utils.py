@@ -1,7 +1,9 @@
-import tensorflow as tf
-import tensorflow.keras as keras
 import math
 import copy
+
+import tensorflow as tf
+
+from . import data_handler
 
 seed_value= 42
 # 1. Set `PYTHONHASHSEED` environment variable at a fixed value
@@ -155,7 +157,7 @@ class DataGenerator():
                 else:
                         occluded_X = []
 
-                X = keras.utils.to_categorical(X, num_classes=self.num_states)
+                X = tf.keras.utils.to_categorical(X, num_classes=self.num_states)
                 # remove N nucleotides which is the state 0 (i.e. the first
                 # element in the one-hot vector). Note that occluded regions
                 # are also marked by Ns
@@ -168,7 +170,7 @@ class DataGenerator():
                 Z = tf.cast(Z, tf.float32)
                 # minibatch augmentation
                 if self.occlusion:
-                        occluded_X = keras.utils.to_categorical(occluded_X, num_classes=self.num_states)
+                        occluded_X = tf.keras.utils.to_categorical(occluded_X, num_classes=self.num_states)
                         occluded_X = tf.slice(occluded_X, [0, 0, 1], [occluded_X.shape[0], occluded_X.shape[1], occluded_X.shape[2] - 1])
                         # denoising autoencoder (no occlusion)
                         W = X
@@ -191,3 +193,29 @@ class DataGenerator():
                 'Shuffle data after each epoch'
                 if self.shuffle:
                         self._shuffle_data()
+
+def prepare_dataset(infile, augmentation=True):
+        data  = data_handler.read_windows(win_fin)
+
+        # generate a train and valid set for each label
+        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 0)[0])
+        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 1)[0])
+
+        train_idx = neg_train_idx + pos_train_idx
+        valid_idx = neg_valid_idx + pos_valid_idx
+
+        train_set = np.asarray([data[i] for i in train_idx])
+        valid_set = np.asarray([data[i] for i in valid_idx])
+
+        train_gen = utils.DataGenerator(train_set,
+                                        batch_size=16,
+                                        data_augmentation=augmentation,
+                                        occlusion=augmentation,
+                                        shuffle=True)
+        valid_gen = utils.DataGenerator(valid_set,
+                                        batch_size=16,
+                                        data_augmentation=False,
+                                        occlusion=False,
+                                        shuffle=True)
+
+        return train_gen, valid_gen
