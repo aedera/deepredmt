@@ -17,15 +17,8 @@ os.environ['PYTHONHASHSEED']=str(seed_value)
 import random
 random.seed(seed_value)
 # 3. Set `numpy` pseudo-random generator at a fixed value
-import numpy as np
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
-
-# define output model name
-datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
-model_fout = tempfile.gettempdir() + '/' + datetime_tag + '_deepredmt.tf'
-
-num_classes = 2 # edited and unedited, two classes
 
 from . import utils
 from . import data_handler
@@ -34,35 +27,38 @@ from . import losses
 from . import metrics
 from . import layers
 
+# define output model name
+datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
+model_fout = tempfile.gettempdir() + '/' + datetime_tag + '_deepredmt.tf'
+
+num_classes = 2 # edited and unedited, two classes
+
+loss_avg = tf.keras.metrics.Mean()
+metric_avg = {'sen': tf.keras.metrics.Mean(),
+              'pre': tf.keras.metrics.Mean()}
+
+
+
 @tf.function
-def calculate_metrics(class_true, class_pred):
+def calculate_metrics(y_true, y_pred):
         # calculate performance metrics independently for each label
-        metric_values = []
-        # parse class prediction
-        max_classes = tf.math.argmax(class_pred, axis=1)
-        parsed_class_pred = tf.one_hot(max_classes,
-                                       depth=num_classes,
-                                       dtype='float32')
-        for i in range(num_classes):
-                c_t = class_true[:, i]
-                c_p = parsed_class_pred[:, i]
-                sen = metrics._sen_fn(c_t, c_p) # sensitivity
-                pre = metrics._pre_fn(c_t, c_p) # precision
-                metric_values.append({'sen':sen, 'pre':pre})
-        return metric_values
+        return {
+                'sen': metrics._sen_fn(y_true, y_pred),
+                'pre': metrics._pre_fn(y_true, y_pred),
+        }
 
 @tf.function
 def train_step(ds, model, opt):
-        batch, class_true, ext_true, batch_reconstruction = ds
+        x_occluded, y_true, ext_true, x_no_occluded = ds
 
         with tf.GradientTape() as tape:
-                out = model(batch)
-                recon = out[0]
-                class_pred = out[2]
+                out = model(x_occluded)
+                x_recon = out[0]
+                y_pred = out[2]
                 # batch_reconstruction does not have occlusion
-                recon_loss = losses.reconstruction_loss_fn(batch_reconstruction, recon)
-                class_loss = losses.classification_loss_fn(class_true,
-                                                           class_pred,
+                recon_loss = losses.reconstruction_loss_fn(x_no_occluded, x_recon)
+                class_loss = losses.classification_loss_fn(y_true,
+                                                           y_pred,
                                                            ext_true,
                                                            _label_smoothing)
                 regularization = losses.regularization(model.trainable_variables)
@@ -71,28 +67,26 @@ def train_step(ds, model, opt):
         # apply gradient to main model
         opt.apply_gradients(zip(grads, model.trainable_variables))
 
-        del tape  # Drop reference to the tape
-
-        metrics = calculate_metrics(class_true, class_pred)
+        metrics = calculate_metrics(y_true, y_pred)
 
         return [loss, metrics]
 
 @tf.function
 def test_step(ds, model, opt):
-        batch, class_true, ext_true, batch_reconstruction = ds
+        x, y_true, ext_true, _ = ds
 
-        out = model(batch, training=False)
-        recon = out[0]
-        class_pred = out[2]
-        recon_loss = losses.reconstruction_loss_fn(batch, recon)
-        class_loss = losses.classification_loss_fn(class_true,
-                                                   class_pred,
+        out = model(x, training=False)
+        x_recon = out[0]
+        y_pred = out[2]
+        recon_loss = losses.reconstruction_loss_fn(x, x_recon)
+        class_loss = losses.classification_loss_fn(y_true,
+                                                   y_pred,
                                                    ext_true,
                                                    _label_smoothing)
         regularization = losses.regularization(model.trainable_variables)
         loss = recon_loss + class_loss + regularization
 
-        metrics = calculate_metrics(class_true, class_pred)
+        metrics = calculate_metrics(y_true, y_pred)
 
         return [loss, metrics]
 
@@ -101,60 +95,43 @@ def print_minibatch_progress(step, data_gen):
         print("Epoch %d %s training step %d/%d" % (epoch_counter, BAR[step % 4], step, len(data_gen)), end='\r')
 
 def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
-        loss_avg = tf.keras.metrics.Mean()
+        # reset values
+        loss_avg.reset_states()
+        [metric_avg[k].reset_states for k in metric_avg]
 
-        metric_avg = [{'sen': tf.keras.metrics.Mean(),
-                       'pre': tf.keras.metrics.Mean()} for i in range(num_classes)]
         # performing over mini batches
         for step in range(len(data_gen)):
                 if print_log:
                         print_minibatch_progress(step, data_gen)
                 # update parameters
                 loss, metr = mini_batch_step_fn(data_gen[step], model, opt)
+
                 # Track progress
                 loss_avg(loss)
-
                 # performance metrics
-                for i in range(num_classes):
-                        for k in metric_avg[i]:
-                                metric_avg[i][k](metr[i][k])
-        loss = float(loss_avg.result())
+                [metric_avg[k](metr[k].numpy()) for k in metr]
 
-        metric_results = []
-        for i in range(num_classes):
-                metric_results.append({})
-                for metric in metric_avg[i]:
-                        metric_results[i][metric] = float(metric_avg[i][metric].result())
-        return [loss, metric_results]
+        loss = loss_avg.result().numpy()
+        metric_results = [metric_avg[k].result().numpy() for k in metric_avg]
 
-def print_epoch_progress(tr_loss,
+        return loss, metric_results
+
+def print_epoch_progress(loss,
                          vl_loss,
-                         tr_metr,
+                         metr,
                          vl_metr):
-        print('Epoch %d Tr %.4f Vl %.4f' % (epoch_counter, tr_loss[-1], vl_loss[-1]))
-        outstr = ''
-        for i in range(num_classes):
-                outstr += 'tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
+        print('Epoch %d Tr %.4f Vl %.4f' % (epoch_counter, loss[-1], vl_loss[-1]))
+
+        outstr = 'sen %.4f pre %.4f val_sen %.4f val_pre %.4f\n' % (metr[0], metr[1], vl_metr[0], vl_metr[1])
         print(outstr.strip())
 
 def fit(train_gen,
         valid_gen,
         num_hidden_units=5,
         label_smoothing=True,
-        epochs=100,
-        tr_log_fout=None,
-        vl_log_fout=None):
+        epochs=100):
         global _label_smoothing
         _label_smoothing = label_smoothing
-
-        datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
-        if tr_log_fout is None:
-                tr_log_fout = tempfile.gettempdir() + '/' + datetime_tag + '.tr.log'
-        if vl_log_fout is None:
-                vl_log_fout = tempfile.gettempdir() + '/' + datetime_tag + '.vl.log'
-
-        tr_log_fd = open(tr_log_fout, 'a')
-        vl_log_fd = open(vl_log_fout, 'a')
 
         # define model and optimizer
         model = models.CAE(input_shape=(41, 4),
@@ -167,9 +144,6 @@ def fit(train_gen,
         ## model optimization
         tr_losses = []
         vl_losses = []
-        # test_losses = []
-        tr_metr = [{'sen':[], 'pre':[]} for i in range(num_classes)]
-        vl_metr = [{'sen':[], 'pre':[]} for i in range(num_classes)]
 
         best_valid_loss = np.inf
         patience = 3 # number of epochs with no improvement
@@ -184,21 +158,12 @@ def fit(train_gen,
 
         for epoch_counter in range(1, epochs):
                 # train phase
-                train_loss, metrs = epoch_step(train_gen, train_step, model, opt, True)
-                tr_losses.append(train_loss)
-                # save metrics
-                for i in range(num_classes):
-                        for k in ('sen', 'pre'):
-                                tr_metr[i][k].append(metrs[i][k])
+                loss, metrs = epoch_step(train_gen, train_step, model, opt, True)
+                tr_losses.append(loss)
 
                 # validation step
-                valid_loss, metrs = epoch_step(valid_gen, test_step, model, opt, False)
-                vl_losses.append(valid_loss)
-
-                # save metrics
-                for i in range(num_classes):
-                        for k in ('sen', 'pre'):
-                                vl_metr[i][k].append(metrs[i][k])
+                val_loss, val_metrs = epoch_step(valid_gen, test_step, model, opt, False)
+                vl_losses.append(val_loss)
 
                 # stop learning if there are nan values
                 if math.isnan(tr_losses[-1]) or math.isnan(vl_losses[-1]):
@@ -206,13 +171,13 @@ def fit(train_gen,
                         break
 
                 # one epoch end
-                if valid_loss <= best_valid_loss:
-                        checkpoint_str = '* ---> Saving model as %.4f is less than %.4f\n' % (valid_loss, best_valid_loss)
-                        best_valid_loss = valid_loss
+                if val_loss <= best_valid_loss:
+                        checkpoint_str = '* ---> Saving model as %.4f is less than %.4f\n' % (val_loss, best_valid_loss)
+                        best_valid_loss = val_loss
                         patience_cnt = 0
                         model.save(model_fout)
                         print(checkpoint_str)
-                if valid_loss > best_valid_loss:
+                if val_loss > best_valid_loss:
                         patience_cnt += 1
 
                         if patience_cnt >= patience:
@@ -225,24 +190,10 @@ def fit(train_gen,
                                         print("Learning rate reduced\n")
                 # show progress
                 if True : #epoch_counter % 10 == 0:
-                        print_epoch_progress(tr_losses, vl_losses, tr_metr, vl_metr)
+                        print_epoch_progress(tr_losses, vl_losses, metrs, val_metrs)
                 # shuffle generators
                 train_gen.on_epoch_end()
                 valid_gen.on_epoch_end()
-
-                # save loss history
-                outvalues = [tr_losses[-1]]
-                for i in range(num_classes):
-                        outvalues.append(tr_metr[i]['sen'][-1])
-                tr_log_fd.write('\t'.join(map(str, outvalues)) + '\n')
-                tr_log_fd.flush()
-                outvalues = [vl_losses[-1]]
-                for i in range(num_classes):
-                        outvalues.append(vl_metr[i]['sen'][-1])
-                vl_log_fd.write('\t'.join(map(str, outvalues)) + '\n')
-                vl_log_fd.flush()
-        tr_log_fd.close()
-        vl_log_fd.close()
 
         # load model with best performance on the valid set
         model = tf.keras.models.load_model(model_fout, compile=False)

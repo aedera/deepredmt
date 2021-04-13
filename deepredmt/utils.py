@@ -20,16 +20,21 @@ from . import data_handler
 
 class DataGenerator():
         def __init__(self,
-                     data,
+                     x, # nucleotide windows
+                     y, # labels
+                     p, # editing extents
                      batch_size,
                      data_augmentation=False,
                      occlusion=False,
                      shuffle=True):
-                self.data = data
+                self.x = x
+                self.y = y
+                self.p = p
+
                 # N, A, C, G, T. Minus one because states e and E are not considered
                 self.num_states = len(_NT2ID) - 2
                 # number of examples for each class label
-                self.label_counter = np.unique(self.data[:,0], return_counts=True)[1]
+                self.label_counter = np.unique(self.y, return_counts=True)[1]
                 self.num_labels = len(self.label_counter)
                 # number of examples for the minority class
                 self.min_len = min(self.label_counter)
@@ -39,6 +44,11 @@ class DataGenerator():
                 self.occlusion = occlusion
                 self.data_augmentation = data_augmentation
                 self.shuffle = shuffle
+
+                # identify unedited and edited entries
+                self.neg_idx = np.where(self.y == 0)[0]
+                self.pos_idx = np.where(self.y == 1)[0]
+
                 # shuffle data
                 self._shuffle_data()
 
@@ -143,11 +153,11 @@ class DataGenerator():
                 from_rng = self.get_batch_size() * idx; to_rng = self.get_batch_size() * (idx+1)
                 idx = np.concatenate((self.neg_idx[from_rng:to_rng],
                                       self.pos_idx[from_rng:to_rng]))
-                # retrieve labels
-                Y = self.data[idx, 0]
-                X = np.array(list(map(list, self.data[idx, 1])))
+
                 # retrieve windows and make data augmentation
+                X = self.x[idx,:]
                 X = self._edit_wins(X.copy())
+
                 # batch augmentation by occluding windows
                 if self.occlusion:
                         occluded_X = self._occlude_batch(X,
@@ -161,18 +171,23 @@ class DataGenerator():
                 # element in the one-hot vector). Note that occluded regions
                 # are also marked by Ns
                 X = tf.slice(X, [0, 0, 1], [X.shape[0], X.shape[1], X.shape[2] - 1])
+
+                # retrieve labels
+                Y = self.y[idx]
                 Y = tf.convert_to_tensor(tf.keras.utils.to_categorical(Y, num_classes=self.num_labels))
                 Y = tf.cast(Y, tf.float32)
+
                 # retrieve editing extents (used for label smoothing)
-                Z = np.array(list(map(list, self.data[idx, 2])))
+                Z = self.p[idx, :]
                 Z = tf.convert_to_tensor(Z)
                 Z = tf.cast(Z, tf.float32)
+
                 # minibatch augmentation
                 if self.occlusion:
                         occluded_X = tf.keras.utils.to_categorical(occluded_X, num_classes=self.num_states)
                         occluded_X = tf.slice(occluded_X, [0, 0, 1], [occluded_X.shape[0], occluded_X.shape[1], occluded_X.shape[2] - 1])
                         # denoising autoencoder (no occlusion)
-                        W = X
+                        W = X # non_occluded input
                         X = occluded_X
                 else:
                         W = X
@@ -181,35 +196,46 @@ class DataGenerator():
         def _shuffle_data(self):
                 """Shuffle windows associated to each label and calculate indexes for negative
                 and positive examples."""
-                self.data = np.random.permutation(self.data)
-                self.neg_idx = np.where(self.data[:,0] == 0)[0]
-                self.pos_idx = np.where(self.data[:,0] == 1)[0]
+                self.neg_idx = tf.random.shuffle(self.neg_idx)
+                self.pos_idx = tf.random.shuffle(self.pos_idx)
 
         def on_epoch_end(self):
                 'Shuffle data after each epoch'
                 if self.shuffle:
                         self._shuffle_data()
 
-def prepare_dataset(infile, augmentation=True):
-        data  = data_handler.read_windows(infile)
+def prepare_dataset(infile, augmentation=True, batch_sz=16):
+        # x: wins
+        # y: labels
+        # p: editing extents
+        x, y, p  = data_handler.read_windows(infile)
 
         # generate a train and valid set for each label
-        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 0)[0])
-        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 1)[0])
+        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(y == 0)[0])
+        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(y == 1)[0])
 
         train_idx = neg_train_idx + pos_train_idx
         valid_idx = neg_valid_idx + pos_valid_idx
 
-        train_set = np.asarray([data[i] for i in train_idx])
-        valid_set = np.asarray([data[i] for i in valid_idx])
+        x_train = x[train_idx,:].astype(np.float32)
+        y_train = y[train_idx].astype(np.float32)
+        p_train = p[train_idx].astype(np.float32)
 
-        train_gen = DataGenerator(train_set,
-                                  batch_size=16,
+        x_valid = x[valid_idx,:].astype(np.float32)
+        y_valid = y[valid_idx].astype(np.float32)
+        p_valid = p[valid_idx].astype(np.float32)
+
+        train_gen = DataGenerator(x_train,
+                                  y_train,
+                                  p_train,
+                                  batch_size=batch_sz,
                                   data_augmentation=augmentation,
                                   occlusion=augmentation,
                                   shuffle=True)
-        valid_gen = DataGenerator(valid_set,
-                                  batch_size=16,
+        valid_gen = DataGenerator(x_valid,
+                                  y_valid,
+                                  p_valid,
+                                  batch_size=batch_sz,
                                   data_augmentation=False,
                                   occlusion=False,
                                   shuffle=True)
