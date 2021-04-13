@@ -194,7 +194,7 @@ class DataGenerator():
                         self._shuffle_data()
 
 def prepare_dataset(infile, augmentation=True):
-        data  = data_handler.read_windows(win_fin)
+        data  = data_handler.read_windows(infin)
 
         # generate a train and valid set for each label
         neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 0)[0])
