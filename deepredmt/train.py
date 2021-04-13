@@ -41,7 +41,7 @@ def calculate_metrics(class_true, class_pred):
         # parse class prediction
         max_classes = tf.math.argmax(class_pred, axis=1)
         parsed_class_pred = tf.one_hot(max_classes,
-                                       num_classes=num_classes,
+                                       depth=num_classes,
                                        dtype='float32')
         for i in range(num_classes):
                 c_t = class_true[:, i]
