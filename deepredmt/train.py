@@ -47,7 +47,7 @@ def calculate_metrics(class_true, class_pred):
                 sen = metrics._sen_fn(c_t, c_p) # sensitivity
                 pre = metrics._pre_fn(c_t, c_p) # precision
                 metric_values.append({'sen':sen, 'pre':pre})
-        return metric_values]
+        return metric_values
 
 
 def train_step(ds, model, opt):
