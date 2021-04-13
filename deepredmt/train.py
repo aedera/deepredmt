@@ -34,6 +34,7 @@ from . import losses
 from . import metrics
 from . import layers
 
+@tf.function
 def calculate_metrics(class_true, class_pred):
         # calculate performance metrics independently for each label
         metric_values = []
@@ -48,7 +49,6 @@ def calculate_metrics(class_true, class_pred):
                 pre = metrics._pre_fn(c_t, c_p) # precision
                 metric_values.append({'sen':sen, 'pre':pre})
         return metric_values
-
 
 @tf.function
 def train_step(ds, model, opt):
