@@ -174,9 +174,6 @@ class DataGenerator():
                         # denoising autoencoder (no occlusion)
                         W = X
                         X = occluded_X
-                        # X = tf.concat([X, occluded_X], 0)
-                        # Y = tf.cast(tf.tile(Y, [2,1]), tf.float32)
-                        # Z = tf.cast(tf.tile(Z, [2,1]), tf.float32)
                 else:
                         W = X
                 return X, Y, Z, W

@@ -129,7 +129,8 @@ def print_epoch_progress(norm, tr_loss, vl_loss, tr_metr, vl_metr, pcor, rpcor):
                 outstr += 'tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
         print(outstr.strip())
 
-def fit(win_fin,
+def fit(train_gen,
+        valid_gen,
         num_hidden_units=5,
         data_augmentation=True,
         label_smoothing=True,
@@ -139,28 +140,7 @@ def fit(win_fin,
         _label_smoothing = label_smoothing
         tr_log_fd = open(tr_log_fout, 'a')
         vl_log_fd = open(vl_log_fout, 'a')
-        # read windows
-        # (label, win, ext, cp, key)
-        data  = data_handler.read_windows(win_fin)
-        global num_classes
-        num_classes = len(set(data[:, 0]))
-        # generate a train and valid set for each label
-        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 0)[0])
-        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 1)[0])
-        train_idx = neg_train_idx + pos_train_idx
-        valid_idx = neg_valid_idx + pos_valid_idx
-        train_set = np.array([ data[i] for i in train_idx ])
-        valid_set = np.array([ data[i] for i in valid_idx ])
-        train_gen = utils.DataGenerator(train_set,
-                                        batch_size=16,
-                                        data_augmentation=data_augmentation,
-                                        occlusion=data_augmentation,
-                                        shuffle=True)
-        valid_gen = utils.DataGenerator(valid_set,
-                                        batch_size=16,
-                                        data_augmentation=False,
-                                        occlusion=False,
-                                        shuffle=True)
+
         # define model and optimizer
         model = models.CAE(input_shape=(41, 4),
                            num_hunits=num_hidden_units,
