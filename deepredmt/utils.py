@@ -3,8 +3,6 @@ import copy
 
 import tensorflow as tf
 
-from . import data_handler
-
 seed_value= 42
 # 1. Set `PYTHONHASHSEED` environment variable at a fixed value
 import os
@@ -17,7 +15,8 @@ import numpy as np
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
-from src import _NT2ID
+#from . import _NT2ID
+from . import data_handler
 
 class DataGenerator():
         def __init__(self,
