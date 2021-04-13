@@ -68,12 +68,12 @@ def train_step(ds, model, opt):
         grads = tape.gradient(loss, model.trainable_variables)
         # apply gradient to main model
         opt.apply_gradients(zip(grads, model.trainable_variables))
-        norm = tf.linalg.global_norm(grads)
+
         del tape  # Drop reference to the tape
 
         metrics = calculate_metrics(class_true, class_pred)
 
-        return [loss, norm, metrics]
+        return [loss, metrics]
 
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
@@ -88,11 +88,10 @@ def test_step(ds, model, opt):
                                                    _label_smoothing)
         regularization = losses.regularization(model.trainable_variables)
         loss = recon_loss + class_loss + regularization
-        norm = 0.0
 
         metrics = calculate_metrics(class_true, class_pred)
 
-        return [loss, norm, metrics]
+        return [loss, metrics]
 
 def print_minibatch_progress(step, data_gen):
         BAR = [ '-', '\\', '|', '/' ]
@@ -100,36 +99,35 @@ def print_minibatch_progress(step, data_gen):
 
 def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
         loss_avg = tf.keras.metrics.Mean()
-        norm_avg = tf.keras.metrics.Mean()
+
         metric_avg = [{'sen': tf.keras.metrics.Mean(), 'pre': tf.keras.metrics.Mean()} for i in range(num_classes)]
         # performing over mini batches
         for step in range(len(data_gen)):
                 if print_log:
                         print_minibatch_progress(step, data_gen)
                 # update parameters
-                loss, norm, metr = mini_batch_step_fn(data_gen[step], model, opt)
+                loss, metr = mini_batch_step_fn(data_gen[step], model, opt)
                 # Track progress
                 loss_avg(loss)
-                norm_avg(norm)
+
                 # performance metrics
                 for i in range(num_classes):
                         for k in metric_avg[i]:
                                 metric_avg[i][k](metr[i][k])
         loss = float(loss_avg.result())
-        norm = float(norm_avg.result())
+
         metric_results = []
         for i in range(num_classes):
                 metric_results.append({})
                 for metric in metric_avg[i]:
                         metric_results[i][metric] = float(metric_avg[i][metric].result())
-        return [loss, norm, metric_results]
+        return [loss, metric_results]
 
-def print_epoch_progress(norm,
-                         tr_loss,
+def print_epoch_progress(tr_loss,
                          vl_loss,
                          tr_metr,
                          vl_metr):
-        print('Epoch %d Norm %.4f Tr %.4f Vl %.4f' % (epoch_counter, norm, tr_loss[-1], vl_loss[-1]))
+        print('Epoch %d Tr %.4f Vl %.4f' % (epoch_counter, tr_loss[-1], vl_loss[-1]))
         outstr = ''
         for i in range(num_classes):
                 outstr += 'tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
@@ -183,14 +181,14 @@ def fit(train_gen,
         while(True):
                 epoch_counter += 1
                 # train phase
-                train_loss, norm, metrs = epoch_step(train_gen, train_step, model, opt, True)
+                train_loss, metrs = epoch_step(train_gen, train_step, model, opt, True)
                 tr_losses.append(train_loss)
                 # save metrics
                 for i in range(num_classes):
                         for k in ('sen', 'pre'):
                                 tr_metr[i][k].append(metrs[i][k])
                 # testing
-                valid_loss, dummy_norm, metrs = epoch_step(valid_gen, test_step, model, opt, False)
+                valid_loss, metrs = epoch_step(valid_gen, test_step, model, opt, False)
                 vl_losses.append(valid_loss)
                 # save metrics
                 for i in range(num_classes):
@@ -222,7 +220,7 @@ def fit(train_gen,
                                         opt.lr = opt.lr * lr_decay
                 # show progress
                 if True : #epoch_counter % 10 == 0:
-                        print_epoch_progress(norm, tr_losses, vl_losses, tr_metr, vl_metr)
+                        print_epoch_progress(tr_losses, vl_losses, tr_metr, vl_metr)
                 # shuffle generators
                 train_gen.on_epoch_end()
                 valid_gen.on_epoch_end()
