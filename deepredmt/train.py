@@ -77,10 +77,11 @@ def train_step(ds, model, opt):
 
         return [loss, metrics]
 
+@tf.function
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
-        out = model.predict(batch)
+        out = model(batch, training=False)
         recon = out[0]
         class_pred = out[2]
         recon_loss = losses.reconstruction_loss_fn(batch, recon)
