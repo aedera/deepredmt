@@ -9,8 +9,7 @@ def classification_loss_fn(class_true,
         # label smoothing
         if label_smoothing:
                 class_true = ext_true * class_true
-        class_loss =
-        tf.keras.losses.categorical_crossentropy(class_true, class_pred)
+        class_loss = tf.keras.losses.categorical_crossentropy(class_true, class_pred)
         return tf.reduce_mean(class_loss)
 
 def reconstruction_loss_fn(true, recon):
