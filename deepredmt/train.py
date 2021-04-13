@@ -142,6 +142,7 @@ def fit(train_gen,
         num_hidden_units=5,
         data_augmentation=True,
         label_smoothing=True,
+        epochs=100,
         tr_log_fout=None,
         vl_log_fout=None):
         global _label_smoothing
@@ -181,8 +182,8 @@ def fit(train_gen,
         global decay_counter
         decay_counter = 1
         max_num_attempts = 3 # maximun number of LR decays until stopping learning
-        while(True):
-                epoch_counter += 1
+
+        for epoch_counter in range(1, epochs):
                 # train phase
                 train_loss, metrs = epoch_step(train_gen, train_step, model, opt, True)
                 tr_losses.append(train_loss)
@@ -190,7 +191,8 @@ def fit(train_gen,
                 for i in range(num_classes):
                         for k in ('sen', 'pre'):
                                 tr_metr[i][k].append(metrs[i][k])
-                # testing
+
+                # validation step
                 valid_loss, metrs = epoch_step(valid_gen, test_step, model, opt, False)
                 vl_losses.append(valid_loss)
                 # save metrics
