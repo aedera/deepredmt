@@ -57,7 +57,7 @@ def basic_step(ds, M, opt, train_flag):
                                                                    _label_smoothing)
                         regularization = losses.regularization(M.trainable_variables)
                         loss = recon_loss + class_loss + regularization
-                        grads = tape.gradient(loss, M.trainable_variables)
+                grads = tape.gradient(loss, M.trainable_variables)
                 # apply gradient to main model
                 opt.apply_gradients(zip(grads, M.trainable_variables))
                 norm = tf.linalg.global_norm(grads)
