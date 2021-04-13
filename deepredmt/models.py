@@ -4,7 +4,9 @@ from .layers import L2Normalization
 from .layers import Conv1DTranspose
 
 # CAE: Convolutional AutoEncoder
-def CAE(input_shape, num_hunits, filters):
+def CAE(input_shape, num_hunits):
+    filters = [16, 32, 64, 128, 256, 512]
+
     #
     # Encoder
     #

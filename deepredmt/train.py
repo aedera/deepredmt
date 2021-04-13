@@ -100,7 +100,8 @@ def print_minibatch_progress(step, data_gen):
 def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
         loss_avg = tf.keras.metrics.Mean()
 
-        metric_avg = [{'sen': tf.keras.metrics.Mean(), 'pre': tf.keras.metrics.Mean()} for i in range(num_classes)]
+        metric_avg = [{'sen': tf.keras.metrics.Mean(),
+                       'pre': tf.keras.metrics.Mean()} for i in range(num_classes)]
         # performing over mini batches
         for step in range(len(data_gen)):
                 if print_log:
@@ -154,8 +155,7 @@ def fit(train_gen,
 
         # define model and optimizer
         model = models.CAE(input_shape=(41, 4),
-                           num_hunits=num_hidden_units,
-                           filters=[16, 32, 64, 128, 256, 512])
+                           num_hunits=num_hidden_units)
         opt = tf.keras.optimizers.Adam(learning_rate=0.001,
                                        beta_1=0.9,
                                        beta_2=0.999,
