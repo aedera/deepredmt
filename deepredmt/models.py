@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 
 from .layers import L2Normalization
+from .layers import Conv1DTranspose
 
 # CAE: Convolutional AutoEncoder
 def CAE(input_shape, num_hunits, filters):
