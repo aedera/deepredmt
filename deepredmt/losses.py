@@ -2,6 +2,7 @@ import tensorflow as tf
 
 HYPERPARAM = 0.0001
 
+@tf.function
 def classification_loss_fn(y_true,
                            y_pred,
                            ext_true,
@@ -12,9 +13,11 @@ def classification_loss_fn(y_true,
         loss = tf.keras.losses.categorical_crossentropy(y_true, y_pred)
         return tf.reduce_mean(loss)
 
+@tf.function
 def reconstruction_loss_fn(true, recon):
         recon_loss = tf.keras.losses.binary_crossentropy(true, recon)
         return tf.reduce_mean(recon_loss)
 
+@tf.function
 def regularization(params):
         return tf.add_n([ tf.nn.l2_loss(v) for v in params ]) * HYPERPARAM
