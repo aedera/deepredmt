@@ -47,7 +47,7 @@ def calculate_metrics(class_true, class_pred):
                 sen = metrics._sen_fn(c_t, c_p) # sensitivity
                 pre = metrics._pre_fn(c_t, c_p) # precision
                 metric_values.append({'sen':sen, 'pre':pre})
-        return [loss, norm, metric_values]
+        return metric_values]
 
 
 def train_step(ds, model, opt):
@@ -71,7 +71,9 @@ def train_step(ds, model, opt):
         norm = tf.linalg.global_norm(grads)
         del tape  # Drop reference to the tape
 
-        return calculate_metrics(class_true, class_pred)
+        metrics = calculate_metrics(class_true, class_pred)
+
+        return [loss, norm, metrics]
 
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
@@ -88,7 +90,9 @@ def test_step(ds, model, opt):
         loss = recon_loss + class_loss + regularization
         norm = 0.0
 
-        return calculate_metrics(class_true, class_pred)
+        metrics = calculate_metrics(class_true, class_pred)
+
+        return [loss, norm, metrics]
 
 def print_minibatch_progress(step, data_gen):
         BAR = [ '-', '\\', '|', '/' ]
