@@ -206,15 +206,15 @@ def prepare_dataset(infile, augmentation=True):
         train_set = np.asarray([data[i] for i in train_idx])
         valid_set = np.asarray([data[i] for i in valid_idx])
 
-        train_gen = utils.DataGenerator(train_set,
-                                        batch_size=16,
-                                        data_augmentation=augmentation,
-                                        occlusion=augmentation,
-                                        shuffle=True)
-        valid_gen = utils.DataGenerator(valid_set,
-                                        batch_size=16,
-                                        data_augmentation=False,
-                                        occlusion=False,
-                                        shuffle=True)
+        train_gen = DataGenerator(train_set,
+                                  batch_size=16,
+                                  data_augmentation=augmentation,
+                                  occlusion=augmentation,
+                                  shuffle=True)
+        valid_gen = DataGenerator(valid_set,
+                                  batch_size=16,
+                                  data_augmentation=False,
+                                  occlusion=False,
+                                  shuffle=True)
 
         return train_gen, valid_gen
