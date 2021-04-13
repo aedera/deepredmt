@@ -77,7 +77,6 @@ def train_step(ds, model, opt):
 
         return [loss, metrics]
 
-@tf.function
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
