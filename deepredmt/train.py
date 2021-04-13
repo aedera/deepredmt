@@ -134,10 +134,17 @@ def fit(train_gen,
         num_hidden_units=5,
         data_augmentation=True,
         label_smoothing=True,
-        tr_log_fout,
-        vl_log_fout):
+        tr_log_fout=None,
+        vl_log_fout=None):
         global _label_smoothing
         _label_smoothing = label_smoothing
+
+        datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
+        if tr_log_fout is None:
+                tr_log_fout = tempfile.gettempdir() + '/' + datetime_tag + '.tr.log'
+        if vl_log_fout is None:
+                vl_log_fout = tempfile.gettempdir() + '/' + datetime_tag + '.vl.log'
+
         tr_log_fd = open(tr_log_fout, 'a')
         vl_log_fd = open(vl_log_fout, 'a')
 
