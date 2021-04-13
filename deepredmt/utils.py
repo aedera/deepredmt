@@ -187,10 +187,11 @@ class DataGenerator():
                         occluded_X = tf.keras.utils.to_categorical(occluded_X, num_classes=self.num_states)
                         occluded_X = tf.slice(occluded_X, [0, 0, 1], [occluded_X.shape[0], occluded_X.shape[1], occluded_X.shape[2] - 1])
                         # denoising autoencoder (no occlusion)
-                        W = X # non_occluded input
+                        W = X # non-occluded input
                         X = occluded_X
                 else:
                         W = X
+
                 return X, Y, Z, W
 
         def _shuffle_data(self):
@@ -204,7 +205,7 @@ class DataGenerator():
                 if self.shuffle:
                         self._shuffle_data()
 
-def prepare_dataset(infile, augmentation=True, batch_sz=16):
+def prepare_dataset(infile, augmentation=True, batch_size=16):
         # x: wins
         # y: labels
         # p: editing extents
@@ -228,14 +229,14 @@ def prepare_dataset(infile, augmentation=True, batch_sz=16):
         train_gen = DataGenerator(x_train,
                                   y_train,
                                   p_train,
-                                  batch_size=batch_sz,
+                                  batch_size=batch_size,
                                   data_augmentation=augmentation,
                                   occlusion=augmentation,
                                   shuffle=True)
         valid_gen = DataGenerator(x_valid,
                                   y_valid,
                                   p_valid,
-                                  batch_size=batch_sz,
+                                  batch_size=batch_size,
                                   data_augmentation=False,
                                   occlusion=False,
                                   shuffle=True)
