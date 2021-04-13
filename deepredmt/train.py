@@ -25,6 +25,8 @@ tf.random.set_seed(seed_value)
 datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
 model_fout = tempfile.gettempdir() + '/' + datetime_tag + '_deepredmt.tf'
 
+num_classes = 2 # edited and unedited, two classes
+
 from . import utils
 from . import data_handler
 from . import models
