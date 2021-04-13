@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import sys
-import numpy as np
 import math
+import datetime
+import tempfile
 
 import tensorflow as tf
-import tensorflow.keras as keras
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import load_model
+import numpy as np
 
 # Seed value
 # Apparently you may use different seed values at each stage
@@ -22,13 +21,16 @@ import numpy as np
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
-from src import utils
-from src import data_handler
-from src import models
-from src import losses
-from src import metrics
-from src import layers
-from src import losses
+# define output model name
+datetime_tag = datetime.datetime.now().strftime('%y%m%d%H%M')
+model_fout = tempfile.gettempdir() + '/' + datetime_tag + '_deepredmt.tf'
+
+from . import utils
+from . import data_handler
+from . import models
+from . import losses
+from . import metrics
+from . import layers
 
 def train_step(ds, model, opt):
         return basic_step(ds, model, opt, True)
@@ -75,7 +77,7 @@ def basic_step(ds, M, opt, train_flag):
         # calculate performance metrics independently for each label
         metric_values = []
         # parse class prediction
-        parsed_class_pred = keras.utils.to_categorical(tf.math.argmax(class_pred, axis=1),
+        parsed_class_pred = tf.keras.utils.to_categorical(tf.math.argmax(class_pred, axis=1),
                                                        num_classes=num_classes,
                                                        dtype='float32')
         for i in range(num_classes):
@@ -127,13 +129,12 @@ def print_epoch_progress(norm, tr_loss, vl_loss, tr_metr, vl_metr, pcor, rpcor):
                 outstr += 'tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
         print(outstr.strip())
 
-def train_model(num_hidden_units,
-                data_augmentation,
-                label_smoothing,
-                win_fin,
-                model_fout,
-                tr_log_fout,
-                vl_log_fout):
+def fit(win_fin,
+        num_hidden_units=5,
+        data_augmentation=True,
+        label_smoothing=True,
+        tr_log_fout,
+        vl_log_fout):
         global _label_smoothing
         _label_smoothing = label_smoothing
         tr_log_fd = open(tr_log_fout, 'a')
@@ -144,8 +145,8 @@ def train_model(num_hidden_units,
         global num_classes
         num_classes = len(set(data[:, 0]))
         # generate a train and valid set for each label
-        neg_train_idx, neg_valid_idx = data_handler.train_test_split(np.where(data[:,0] == 0)[0])
-        pos_train_idx, pos_valid_idx = data_handler.train_test_split(np.where(data[:,0] == 1)[0])
+        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 0)[0])
+        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(data[:,0] == 1)[0])
         train_idx = neg_train_idx + pos_train_idx
         valid_idx = neg_valid_idx + pos_valid_idx
         train_set = np.array([ data[i] for i in train_idx ])
@@ -160,9 +161,14 @@ def train_model(num_hidden_units,
                                         data_augmentation=False,
                                         occlusion=False,
                                         shuffle=True)
-        # model
-        model = models.CAE(input_shape=(41, 4), num_hunits=num_hidden_units, filters=[16, 32, 64, 128, 256, 512])
-        opt = keras.optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+        # define model and optimizer
+        model = models.CAE(input_shape=(41, 4),
+                           num_hunits=num_hidden_units,
+                           filters=[16, 32, 64, 128, 256, 512])
+        opt = tf.keras.optimizers.Adam(learning_rate=0.001,
+                                       beta_1=0.9,
+                                       beta_2=0.999,
+                                       amsgrad=False)
 
         ## model optimization
         tr_losses = []
@@ -241,3 +247,8 @@ def train_model(num_hidden_units,
                 vl_log_fd.flush()
         tr_log_fd.close()
         vl_log_fd.close()
+
+        # return model with best performance on the valid set
+        model = tf.keras.models.load_model(model_fout, compile=False)
+
+        return model
