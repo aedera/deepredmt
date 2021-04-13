@@ -209,8 +209,9 @@ def fit(train_gen,
                 if valid_loss <= best_valid_loss:
                         checkpoint_str = '* ---> Saving model as %.4f is less than %.4f\n' % (valid_loss, best_valid_loss)
                         best_valid_loss = valid_loss
-                        model.save(model_fout)
                         patience_cnt = 0
+                        model.save(model_fout)
+                        print(checkpoint_str)
                 if valid_loss > best_valid_loss:
                         patience_cnt += 1
 
