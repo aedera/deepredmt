@@ -14,7 +14,7 @@ def Conv1DTranspose(input_tensor,
                                         kernel_size=(kernel_size, 1),
                                         strides=(strides, 1),
                                         output_padding=output_padding,
-                                        kernel_initializer=keras.initializers.he_normal(seed=1234),
+                                        kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                         bias_initializer='zeros',
                                         padding=padding)(x)
     x = tf.keras.layers.Lambda(lambda x: K.squeeze(x, axis=2))(x)
@@ -31,68 +31,68 @@ def CAE(input_shape, num_hunits, filters):
     x = tf.keras.layers.Conv1D(filters[0],
                                3,
                                strides=1,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='same')(x)
     x = Activation('relu')(x)
     # second convolutional layer
-    x = keras.layers.Conv1D(filters[0],
-                            3,
-                            strides=1,
-                            kernel_initializer=keras.initializers.he_normal(seed=1234),
-                            bias_initializer='zeros',
-                            kernel_regularizer=keras.regularizers.l2(1e-4),
-                            padding='same')(x)
+    x = tf.keras.layers.Conv1D(filters[0],
+                               3,
+                               strides=1,
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                               bias_initializer='zeros',
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                               padding='same')(x)
     x = tf.keras.layers.Activation('relu')(x)
     # third convolutional layer
     x = tf.keras.layers.Conv1D(filters[1],
                                3,
                                strides=2,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='same')(x)
     x = tf.keras.layers.Activation('relu')(x)
     # forth convolutional layer
     x = tf.keras.layers.Conv1D(filters[2],
                                3,
                                strides=2,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='same')(x)
     x = tf.keras.layers.Activation('relu')(x)
     # fifth convolutional layer
     x = tf.keras.layers.Conv1D(filters[3],
                                3,
                                strides=2,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='valid')(x)
     x = tf.keras.layers.Activation('relu')(x)
     # sixth convolutional layer
     x = tf.keras.layers.Conv1D(filters[4],
                                3,
                                strides=1,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='valid')(x)
     x = tf.keras.layers.Activation('relu')(x)
     x = tf.keras.layers.Conv1D(filters[5],
                                2,
                                strides=1,
-                               kernel_initializer=keras.initializers.he_normal(seed=1234),
+                               kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                                bias_initializer='zeros',
-                               kernel_regularizer=keras.regularizers.l2(1e-4),
+                               kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                                padding='valid')(x)
     x = tf.keras.layers.Activation('relu')(x)
     # flatten convolutional filters
     x = tf.keras.layers.Flatten()(x)
     y = tf.keras.layers.Dense(num_hunits,
-                              kernel_initializer=keras.initializers.he_normal(seed=1234),
+                              kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                               bias_initializer='zeros')(x)
     # l2-normalization
     y = L2Normalization(axis=1)(y)
@@ -100,7 +100,7 @@ def CAE(input_shape, num_hunits, filters):
     # decoder
     #
     x = tf.keras.layers.Dense(2*filters[5],
-                              kernel_initializer=keras.initializers.he_normal(seed=1234),
+                              kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                               bias_initializer='zeros')(y)
     x = tf.keras.layers.Reshape((2, filters[5]))(x)
     x = tf.keras.layers.Activation('relu')(x)
@@ -122,7 +122,7 @@ def CAE(input_shape, num_hunits, filters):
     x = tf.keras.layers.Activation('sigmoid')(x)
     # softmax classifier
     z = tf.keras.layers.Dense(2,
-                              kernel_initializer=keras.initializers.he_normal(seed=1234),
+                              kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
                               bias_initializer='zeros')(y)
     z = tf.keras.layers.Activation('softmax')(z)
 
