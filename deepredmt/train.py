@@ -50,6 +50,7 @@ def calculate_metrics(class_true, class_pred):
         return metric_values
 
 
+@tf.function
 def train_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
@@ -75,6 +76,7 @@ def train_step(ds, model, opt):
 
         return [loss, metrics]
 
+@tf.function
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
 
