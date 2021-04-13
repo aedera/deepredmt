@@ -34,7 +34,7 @@ from . import losses
 from . import metrics
 from . import layers
 
-def calculate_metrics(class_pred):
+def calculate_metrics(class_true, class_pred):
         # calculate performance metrics independently for each label
         metric_values = []
         # parse class prediction
@@ -71,7 +71,7 @@ def train_step(ds, model, opt):
         norm = tf.linalg.global_norm(grads)
         del tape  # Drop reference to the tape
 
-        return calculate_metrics(class_pred)
+        return calculate_metrics(class_true, class_pred)
 
 def test_step(ds, model, opt):
         batch, class_true, ext_true, batch_reconstruction = ds
@@ -88,7 +88,7 @@ def test_step(ds, model, opt):
         loss = recon_loss + class_loss + regularization
         norm = 0.0
 
-        return calculate_metrics(class_pred)
+        return calculate_metrics(class_true, class_pred)
 
 def print_minibatch_progress(step, data_gen):
         BAR = [ '-', '\\', '|', '/' ]
