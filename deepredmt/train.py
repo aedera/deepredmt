@@ -34,48 +34,7 @@ from . import losses
 from . import metrics
 from . import layers
 
-def train_step(ds, model, opt):
-        return basic_step(ds, model, opt, True)
-
-def test_step(ds, model, opt):
-        return basic_step(ds, model, None, False)
-
-def basic_step(ds, M, opt, train_flag):
-        batch, class_true, ext_true, batch_reconstruction = ds
-        # calculate loss and derivatives
-        if train_flag:
-                #with tf.GradientTape(persistent=True) as tape:
-                with tf.GradientTape() as tape:
-                        out = M(batch)
-                        recon = out[0]
-                        class_pred = out[2]
-                        # batch_reconstruction does not have occlusion
-                        recon_loss = losses.reconstruction_loss_fn(batch_reconstruction, recon)
-                        class_loss = losses.classification_loss_fn(class_true,
-                                                                   class_pred,
-                                                                   ext_true,
-                                                                   _label_smoothing)
-                        regularization = losses.regularization(M.trainable_variables)
-                        loss = recon_loss + class_loss + regularization
-                grads = tape.gradient(loss, M.trainable_variables)
-                # apply gradient to main model
-                opt.apply_gradients(zip(grads, M.trainable_variables))
-                norm = tf.linalg.global_norm(grads)
-                pcorrect = 0.0 # don't trace percentage of correct predictions
-                del tape  # Drop reference to the tape
-        else:
-                out = M(batch)
-                recon = out[0]
-                class_pred = out[2]
-                recon_loss = losses.reconstruction_loss_fn(batch, recon)
-                class_loss = losses.classification_loss_fn(class_true,
-                                                           class_pred,
-                                                           ext_true,
-                                                           _label_smoothing)
-                regularization = losses.regularization(M.trainable_variables)
-                loss = recon_loss + class_loss + regularization
-                norm = 0.0
-                pcorrect = tf.reduce_mean(tf.reduce_sum(class_true * class_pred, axis=1))
+def calculate_metrics(class_pred):
         # calculate performance metrics independently for each label
         metric_values = []
         # parse class prediction
@@ -88,7 +47,48 @@ def basic_step(ds, M, opt, train_flag):
                 sen = metrics._sen_fn(c_t, c_p) # sensitivity
                 pre = metrics._pre_fn(c_t, c_p) # precision
                 metric_values.append({'sen':sen, 'pre':pre})
-        return [loss, norm, metric_values, pcorrect]#, cp_performance]
+        return [loss, norm, metric_values]
+
+
+def train_step(ds, model, opt):
+        batch, class_true, ext_true, batch_reconstruction = ds
+
+        with tf.GradientTape() as tape:
+                out = M(batch)
+                recon = out[0]
+                class_pred = out[2]
+                # batch_reconstruction does not have occlusion
+                recon_loss = losses.reconstruction_loss_fn(batch_reconstruction, recon)
+                class_loss = losses.classification_loss_fn(class_true,
+                                                           class_pred,
+                                                           ext_true,
+                                                           _label_smoothing)
+                regularization = losses.regularization(M.trainable_variables)
+                loss = recon_loss + class_loss + regularization
+        grads = tape.gradient(loss, M.trainable_variables)
+        # apply gradient to main model
+        opt.apply_gradients(zip(grads, M.trainable_variables))
+        norm = tf.linalg.global_norm(grads)
+        del tape  # Drop reference to the tape
+
+        return calculate_metrics(class_pred)
+
+def test_step(ds, model, opt):
+        batch, class_true, ext_true, batch_reconstruction = ds
+
+        out = M.predict(batch)
+        recon = out[0]
+        class_pred = out[2]
+        recon_loss = losses.reconstruction_loss_fn(batch, recon)
+        class_loss = losses.classification_loss_fn(class_true,
+                                                   class_pred,
+                                                   ext_true,
+                                                   _label_smoothing)
+        regularization = losses.regularization(M.trainable_variables)
+        loss = recon_loss + class_loss + regularization
+        norm = 0.0
+
+        return calculate_metrics(class_pred)
 
 def print_minibatch_progress(step, data_gen):
         BAR = [ '-', '\\', '|', '/' ]
@@ -98,13 +98,12 @@ def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
         loss_avg = tf.keras.metrics.Mean()
         norm_avg = tf.keras.metrics.Mean()
         metric_avg = [{'sen': tf.keras.metrics.Mean(), 'pre': tf.keras.metrics.Mean()} for i in range(num_classes)]
-        pcor_avg =  tf.keras.metrics.Mean()
         # performing over mini batches
         for step in range(len(data_gen)):
                 if print_log:
                         print_minibatch_progress(step, data_gen)
                 # update parameters
-                loss, norm, metr, pcorrect = mini_batch_step_fn(data_gen[step], model, opt)
+                loss, norm, metr = mini_batch_step_fn(data_gen[step], model, opt)
                 # Track progress
                 loss_avg(loss)
                 norm_avg(norm)
@@ -112,8 +111,6 @@ def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
                 for i in range(num_classes):
                         for k in metric_avg[i]:
                                 metric_avg[i][k](metr[i][k])
-                # accuracy
-                pcor_avg(pcorrect)
         loss = float(loss_avg.result())
         norm = float(norm_avg.result())
         metric_results = []
@@ -121,11 +118,14 @@ def epoch_step(data_gen, mini_batch_step_fn, model, opt, print_log=True):
                 metric_results.append({})
                 for metric in metric_avg[i]:
                         metric_results[i][metric] = float(metric_avg[i][metric].result())
-        pcor_avg = float(pcor_avg.result())
-        return [loss, norm, metric_results, pcorrect]
+        return [loss, norm, metric_results]
 
-def print_epoch_progress(norm, tr_loss, vl_loss, tr_metr, vl_metr, pcor, rpcor):
-        print('Epoch %d Norm %.4f Tr %.4f Vl %.4f PCOR: %.4f RPCOR: %.4f' % (epoch_counter, norm, tr_loss[-1], vl_loss[-1], pcor, rpcor))
+def print_epoch_progress(norm,
+                         tr_loss,
+                         vl_loss,
+                         tr_metr,
+                         vl_metr):
+        print('Epoch %d Norm %.4f Tr %.4f Vl %.4f' % (epoch_counter, norm, tr_loss[-1], vl_loss[-1]))
         outstr = ''
         for i in range(num_classes):
                 outstr += 'tr_sen[%d] %.4f vl_sen[%d] %.4f\n' % (i, tr_metr[i]['sen'][-1], i, vl_metr[i]['sen'][-1])
@@ -170,7 +170,7 @@ def fit(train_gen,
         patience_cnt = 0
         checkpointing_string = ''
         lr_decay = 0.1
-        running_pcor = 0.5
+
         global epoch_counter
         epoch_counter = 0
         global decay_counter
@@ -179,14 +179,14 @@ def fit(train_gen,
         while(True):
                 epoch_counter += 1
                 # train phase
-                train_loss, norm, metrs, dummy_pcor = epoch_step(train_gen, train_step, model, opt, True)
+                train_loss, norm, metrs = epoch_step(train_gen, train_step, model, opt, True)
                 tr_losses.append(train_loss)
                 # save metrics
                 for i in range(num_classes):
                         for k in ('sen', 'pre'):
                                 tr_metr[i][k].append(metrs[i][k])
                 # testing
-                valid_loss, dummy_norm, metrs, pcor = epoch_step(valid_gen, test_step, model, opt, False)
+                valid_loss, dummy_norm, metrs = epoch_step(valid_gen, test_step, model, opt, False)
                 vl_losses.append(valid_loss)
                 # save metrics
                 for i in range(num_classes):
@@ -218,11 +218,11 @@ def fit(train_gen,
                                         opt.lr = opt.lr * lr_decay
                 # show progress
                 if True : #epoch_counter % 10 == 0:
-                        print_epoch_progress(norm, tr_losses, vl_losses, tr_metr, vl_metr, pcor, running_pcor)
+                        print_epoch_progress(norm, tr_losses, vl_losses, tr_metr, vl_metr)
                 # shuffle generators
                 train_gen.on_epoch_end()
                 valid_gen.on_epoch_end()
-                running_pcor = running_pcor * .9 + float(pcor) * .1
+
                 # save loss history
                 outvalues = [tr_losses[-1]]
                 for i in range(num_classes):
