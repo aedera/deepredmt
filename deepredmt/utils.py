@@ -15,7 +15,7 @@ import numpy as np
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
-#from . import _NT2ID
+from . import _NT2ID # global variable
 from . import data_handler
 
 class DataGenerator():
