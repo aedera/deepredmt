@@ -15,7 +15,7 @@ import numpy as np
 np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
-from . import _NT2ID # global variable
+from . import _NT2ID # nucleotide 2 index
 from . import data_handler
 
 class DataGenerator():
@@ -116,74 +116,60 @@ class DataGenerator():
                 occluded_batch = tf.multiply(mask, batch)
                 return occluded_batch
 
-         # windows in the batch are randomly edited
         def _edit_wins(self, X):
                 """If data_augmentation is true, this method randomly edits esites in each
                 window by transforming cytidines into thymidines. Otherwise,
                 all esites are transformed into cytidines.
                 """
-                E_mask = tf.equal(X, _NT2ID['E'])
-                e_mask = tf.equal(X, _NT2ID['e'])
-                not_Emask = tf.math.logical_not(E_mask)
-                not_emask = tf.math.logical_not(e_mask)
-                esite_mask = tf.math.logical_and(not_Emask, not_emask)
 
-                if not self.data_augmentation:
-                        # convert esites to cytidines
-                        unedited_X = tf.where(esite_mask, X, _NT2ID['C'])
-                        return unedited_X
-                else:
+                # mask indicating where there are esites
+                esites_mask = tf.math.logical_or(tf.equal(X, _NT2ID['E']),
+                                                 tf.equal(X, _NT2ID['e']))
+
+                # replace all esites by cytidines
+                new_X = tf.where(esites_mask, _NT2ID['C'], X)
+
+                # replace sampled esites
+                if self.data_augmentation:
+                        # sample esites
                         random_mask = tf.random.uniform(X.shape)
-                        EtoTmask = tf.greater(random_mask, .5)
-                        editing_mask = tf.math.logical_and(EtoTmask, esite_mask)
-                        breakpoint()
-                        ## CHECKKKKKKK!!!!!!!!
-                        edited_X = tf.where(editing_mask, X, _NT2ID['T'])
+                        sample_mask = tf.greater(random_mask, .5)
+                        sampled_esites = tf.math.logical_and(sample_mask, esites_mask)
 
-                        return edited_X
+                        new_X = tf.where(sampled_esites, _NT2ID['T'], new_X)
+
+                return new_X
 
         def __getitem__(self, idx):
-                from_rng = self.get_batch_size() * idx; to_rng = self.get_batch_size() * (idx+1)
+                from_rng = self.get_batch_size() * idx
+                to_rng = self.get_batch_size() * (idx+1)
                 idx = np.concatenate((self.neg_idx[from_rng:to_rng],
                                       self.pos_idx[from_rng:to_rng]))
 
-                # retrieve windows and make data augmentation
+                # retrieve windows
                 slice = tf.nn.embedding_lookup(self.data, idx)
                 X = slice[:, 0:41]
+
+                # edit retrieved windows
                 X = self._edit_wins(X)
 
-                # batch augmentation by occluding windows
-                if self.occlusion:
-                        occluded_X = self._occlude_batch(X,
-                                                         min_length=1,
-                                                         max_length=5)
-                else:
-                        occluded_X = []
+                # augmentation windows with occlusion
+                # if self.occlusion:
+                #         occluded_X = self._occlude_batch(X,
+                #                                          min_length=1,
+                #                                          max_length=5)
+                # else:
+                #         occluded_X = []
 
-                X = tf.keras.utils.to_categorical(X, num_classes=self.num_states)
-                # remove N nucleotides which is the state 0 (i.e. the first
-                # element in the one-hot vector). Note that occluded regions
-                # are also marked by Ns
-                X = tf.slice(X, [0, 0, 1], [X.shape[0], X.shape[1], X.shape[2] - 1])
+                X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
 
-                # minibatch augmentation
-                if self.occlusion:
-                        occluded_X = tf.keras.utils.to_categorical(occluded_X, num_classes=self.num_states)
-                        occluded_X = tf.slice(occluded_X, [0, 0, 1], [occluded_X.shape[0], occluded_X.shape[1], occluded_X.shape[2] - 1])
-                        # denoising autoencoder (no occlusion)
-                        W = X # non-occluded input
-                        X = occluded_X
-                else:
-                        W = X
-
-                breakpoint()
                 # retrieve labels
-                Y = tf.nn.embedding_lookup(self.y, idx)
+                Y = slice[:,41:43]
 
-                # retrieve editing extents (used for label smoothing)
-                Z = tf.nn.embedding_lookup(self.p, idx)
+                # retrieve editing extents
+                Z = slice[:,43:45]
 
-                return X, Y, Z, W
+                return X, Y, Z, X
 
         def _shuffle_data(self):
                 """Shuffle windows associated to each label and calculate indexes for negative
