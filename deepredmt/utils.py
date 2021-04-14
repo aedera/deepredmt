@@ -63,59 +63,6 @@ class DataGenerator():
                 #return int(self.batch_size / 2) if self.occlusion else self.batch_size
                 return self.batch_size
 
-        def generate_random_mask(self, num_wins, seq_length, start_pos, end_pos, min_length, max_length):
-                occlusion_lengths = tf.random.uniform((num_wins,),  minval=min_length, maxval=max_length, dtype=tf.int32)
-                occlusion_lengths = tf.concat([[occlusion_lengths - i] for i in range(max_length)], 0)
-                occlusion_lengths = tf.transpose(occlusion_lengths)
-                occlusion_lengths = tf.maximum(occlusion_lengths, 0)
-                #
-                positions = tf.random.uniform((num_wins,), minval=start_pos, maxval=end_pos, dtype=tf.int32)
-                positions = tf.transpose(tf.broadcast_to(positions, (max_length, num_wins)))
-                occlusion_regions = tf.reduce_sum(tf.one_hot(occlusion_lengths + positions, seq_length), 1)
-                occlusion_regions = tf.cast(tf.greater(occlusion_regions,0), tf.float32)
-                return occlusion_regions
-
-        def generate_sided_mask(self, side, batch_sz, min_length, max_length):
-                num_wins = batch_sz[0]
-                seq_length = batch_sz[1]
-                target_pos = int(np.floor(seq_length / 2))
-                if side < 0:
-                        mask = self.generate_random_mask(num_wins,
-                                                         seq_length,
-                                                         0,
-                                                         target_pos,
-                                                         min_length,
-                                                         max_length)
-                else:
-                        mask = self.generate_random_mask(num_wins,
-                                                         seq_length,
-                                                         target_pos,
-                                                         seq_length,
-                                                         min_length,
-                                                         max_length)
-                return mask
-
-        def _occlude_batch(self, batch, min_length=1, max_length=5):
-                side = random.sample([-1, 1], 1)[0]
-                mask = self.generate_sided_mask(side,
-                                                batch.shape,
-                                                min_length,
-                                                max_length)
-                # second round of occlusions
-                mask_2 = self.generate_sided_mask(side * -1,
-                                                  batch.shape,
-                                                  min_length,
-                                                  max_length)
-                indicators = tf.cast(tf.random.uniform((batch.shape[0],), minval=0, maxval=2, dtype=tf.int64), tf.float32)
-                indicators = tf.expand_dims(indicators, 1)
-                mask_2 = tf.multiply(indicators, mask_2)
-                # combine both masks
-                mask = tf.math.add(mask, mask_2)
-                #
-                mask = tf.cast(tf.logical_not(tf.cast(mask, tf.bool)), tf.float32)
-                occluded_batch = tf.multiply(mask, batch)
-                return occluded_batch
-
         def _edit_wins(self, X):
                 """If data_augmentation is true, this method randomly edits esites in each
                 window by transforming cytidines into thymidines. Otherwise,
@@ -140,6 +87,57 @@ class DataGenerator():
 
                 return new_X
 
+        def occlude(self, X, maxlen=5):
+                """
+                Arg
+                ---
+
+                X: is a tensor whose shape is (n_wins, n_nucleotides)
+
+                maxlen: integer indicating the maximum length of occluded regions
+                """
+                maxlen = 5
+
+                # length of the occluded regions
+                occlen = tf.random.uniform((1,),
+                                           minval=0,
+                                           maxval=maxlen,
+                                           dtype=tf.int32).numpy()[0]
+                if occlen == 0:
+                        return X
+
+                # sample a seed position in which windows to be occluded
+                #
+                # [[1],
+                #  [7],
+                #  [3]]
+                seeds = tf.random.uniform((X.shape[0], 1),
+                                         minval=0,
+                                         maxval=X.shape[1] - occlen,
+                                         dtype=tf.int32)
+                # repeat the seeds to match the length of occlusions
+                #
+                # [[1, 1, 1],
+                #  [7, 7, 7],
+                #  [3, 3 ,3]]
+                mat_seeds = tf.repeat(seeds, occlen, axis=1)
+
+                # generate offset
+                # [0, 1, 2]
+                offsets = tf.constant(range(occlen))
+                # repeat offset to match seeds
+                #
+                # [[0, 1, 2],
+                #  [0, 1, 2],
+                #  [0, 1, 2]]
+                mat_offsets = tf.repeat([offsets], X.shape[0], axis=0)
+
+                occ_mask = tf.one_hot(mat_seeds + mat_offsets, depth=X.shape[1])
+                occ_mask = tf.reduce_sum(occ_mask, 1)
+                occ_mask = tf.cast(occ_mask, tf.bool)
+
+                return tf.where(occ_mask, -1, X)
+
         def __getitem__(self, idx):
                 from_rng = self.get_batch_size() * idx
                 to_rng = self.get_batch_size() * (idx+1)
@@ -148,28 +146,17 @@ class DataGenerator():
 
                 # retrieve windows
                 slice = tf.nn.embedding_lookup(self.data, idx)
-                X = slice[:, 0:41]
+                X, Y, Z = slice[:, 0:41], slice[:,41:43], slice[:,43:45]
 
-                # edit retrieved windows
+                # edit and occlude windows
                 X = self._edit_wins(X)
+                X_occ = self.occlude(X) if self.occlusion else X
 
-                # augmentation windows with occlusion
-                # if self.occlusion:
-                #         occluded_X = self._occlude_batch(X,
-                #                                          min_length=1,
-                #                                          max_length=5)
-                # else:
-                #         occluded_X = []
-
+                # convert windows into one-hot representations
                 X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
+                X_occ = tf.one_hot(tf.cast(X_occ, tf.int32), depth=4)
 
-                # retrieve labels
-                Y = slice[:,41:43]
-
-                # retrieve editing extents
-                Z = slice[:,43:45]
-
-                return X, Y, Z, X
+                return X, Y, Z, X_occ
 
         def _shuffle_data(self):
                 """Shuffle windows associated to each label and calculate indexes for negative
