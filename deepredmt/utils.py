@@ -174,15 +174,21 @@ class DataGenerator(tf.keras.utils.Sequence):
 def prepare_dataset(infile,
                     augmentation=True,
                     label_smoothing=True,
+                    training_set_size=.8,
                     batch_size=16):
-        # x: wins
-        # y: labels
-        # p: editing extents
-        x, y, p  = data_handler.read_windows(infile)
 
-        # generate a train and valid set for each label
-        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(np.where(y == 0)[0])
-        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(np.where(y == 1)[0])
+        # x: wins  (num_wins, 41)
+        # y: labels (num_wins, 1)
+        # p: editing extents (num_wins, 1)
+        x, y, p  = data_handler.read_windows(infile, read_labels=True)
+
+        # indices of negative and positive windows
+        neg_idx = np.where(y == 0)[0]
+        pos_idx = np.where(y == 1)[0]
+
+        # generate a train and valid sets
+        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(neg_idx, percentage=training_set_size)
+        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(pos_idx, percentage=training_set_size)
 
         train_idx = neg_train_idx + pos_train_idx
         valid_idx = neg_valid_idx + pos_valid_idx

@@ -7,7 +7,7 @@ import tensorflow.keras as keras
 
 from . import _NT2ID # nucleotide 2 index
 
-def read_windows(infile):
+def read_windows(infile, read_labels=True, read_edexts=True):
     """read nucleotide windows along with their editing extents. Nucleotides are
     encoded as integers: 0:A 1:C 2:G 3:T 4:e 5:E
     """
@@ -27,15 +27,24 @@ def read_windows(infile):
             win[len(win) // 2] = -1
             wins.append(win)
 
-            # label
-            label = int(b[1])
-            labels.append(label)
+            if read_labels:
+                # label
+                label = int(b[1])
+                labels.append(label)
 
-            # editing extent
-            ext = float(b[2])
-            exts.append(ext)
+            if read_edexts:
+                # editing extent
+                ext = float(b[2])
+                exts.append(ext)
 
-    return np.asarray(wins), np.asarray(labels), np.array(exts)
+        out = [np.asarray(wins)]
+        if read_labels:
+            out.append(np.asarray(labels))
+
+        if read_edexts:
+            out.append(np.asarray(exts))
+
+        return out
 
 def train_valid_split(wins, percentage=.8, seed=1234):
     idxs = list(range(len(wins)))

@@ -14,3 +14,5 @@ _NT2ID = {
 }
 
 from .train import fit
+from .predict import predict
+from .predict import pr_measures

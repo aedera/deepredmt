@@ -7,157 +7,102 @@ from .losses import reconstruction_loss_fn, classification_loss_fn
 
 class CAE(tf.keras.Model):
     def _build(input_shape, num_hunits):
-        filters = [16, 16, 32, 64, 128, 256, 512]
+        filters = [32, 64, 128, 256]
 
-        #
-        # Encoder
-        #
         inputs = tf.keras.Input(shape=input_shape)
         x = inputs
-        # first convolutional layer
+
+        # window preprocessing
+        for i in range(4):
+            x = tf.keras.layers.Conv1D(
+                4**(i+2),
+                kernel_size=3,
+                dilation_rate=2**i,
+                strides=1,
+                kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                padding='same')(x)
+            x = tf.keras.layers.Activation('relu')(x)
+
         x = tf.keras.layers.Conv1D(
-            filters[0],
-            3,
+            16,
+            kernel_size=1,
             strides=1,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
             padding='same')(x)
         x = tf.keras.layers.Activation('relu')(x)
-        # second convolutional layer
-        x = tf.keras.layers.Conv1D(
-            filters[1],
-            3,
-            strides=1,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
-            kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='same')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        # third convolutional layer
-        x = tf.keras.layers.Conv1D(
-            filters[2],
-            3,
+
+        for f in filters:
+            x = tf.keras.layers.Conv1D(
+                f,
+                kernel_size=3,
+                strides=2,
+                kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                padding='same')(x)
+            x = tf.keras.layers.Activation('relu')(x)
+
+        y = x # intermediate representation
+
+        # Decoder
+        x = tf.keras.layers.Conv1DTranspose(
+            filters[-2],
+            kernel_size=3,
             strides=2,
+            padding='same',
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='same')(x)
+            output_padding=None)(y)
         x = tf.keras.layers.Activation('relu')(x)
-        # forth convolutional layer
-        x = tf.keras.layers.Conv1D(
-            filters[3],
-            3,
+
+        for f in reversed(filters[:-2]):
+            x = tf.keras.layers.Conv1DTranspose(
+                filters=f,
+                kernel_size=2,
+                strides=2,
+                padding='same',
+                kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                output_padding=(1))(x)
+            x = tf.keras.layers.Activation('relu')(x)
+
+        # reconstruction of sequences
+        x = tf.keras.layers.Conv1DTranspose(
+            4,
+            kernel_size=2,
             strides=2,
+            padding='same',
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='same')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        # fifth convolutional layer
-        x = tf.keras.layers.Conv1D(
-            filters[4],
-            3,
-            strides=2,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
-            kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        # sixth convolutional layer
-        x = tf.keras.layers.Conv1D(
-            filters[5],
-            3,
-            strides=1,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
-            kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        x = tf.keras.layers.Conv1D(
-            filters[6],
-            2,
-            strides=1,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros',
-            kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        # flatten convolutional filters
-        x = tf.keras.layers.Flatten()(x)
-        y = tf.keras.layers.Dense(
-            num_hunits,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros')(x)
-        # l2-normalization
-        #y = L2Normalization(axis=1)(y)
-        #
-        # decoder
-        #
-        x = tf.keras.layers.Dense(
-            2*filters[6],
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros')(y)
-        x = tf.keras.layers.Reshape((2, filters[6]))(x)
-        x = tf.keras.layers.Activation('relu')(x)
-        # x = layers.ZeroPadding1D((0,1))(x)
-        x = Conv1DTranspose(filters=filters[5],
-                            kernel_size=2,
-                            strides=1,
-                            output_padding=None,
-                            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        x = Conv1DTranspose(filters=filters[4],
-                            kernel_size=3,
-                            strides=1,
-                            output_padding=(0, 0),
-                            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        x = Conv1DTranspose(filters=filters[3],
-                            kernel_size=3,
-                            strides=2,
-                            output_padding=(0, 0),
-                            padding='valid')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        x = Conv1DTranspose(filters=filters[2],
-                            kernel_size=3,
-                            strides=2,
-                            output_padding=(0, 0),
-                            padding='same')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        x = Conv1DTranspose(filters=filters[1],
-                            kernel_size=3,
-                            strides=2,
-                            output_padding=(0, 0),
-                            padding='same')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        x = Conv1DTranspose(filters=filters[0],
-                            kernel_size=3,
-                            strides=1,
-                            padding='same')(x)
-        x = tf.keras.layers.Activation('relu')(x)
-
-        # Last transposed convolutional layer used for reconstructing inputs
-        x = Conv1DTranspose(filters=input_shape[1],
-                            kernel_size=3,
-                            strides=1,
-                            padding='same')(x)
+            output_padding=(1))(x)
         x = tf.keras.layers.Activation('softmax', name='rec')(x)
 
-        # softmax classifier
-        z = tf.keras.layers.Dense(1,
-                                  kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-                                  bias_initializer='zeros')(y)
-        z = tf.keras.layers.Activation('sigmoid', name='cla')(z)
+        # predict editing
+        y = tf.keras.layers.Flatten()(y)
+        for i in range(7):
+            y = tf.keras.layers.Dense(
+                (3*256) // (2**i),
+                kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                bias_initializer='zeros')(y)
+            y = tf.keras.layers.BatchNormalization()(y)
+            y = tf.keras.layers.Activation('relu')(y)
+            y = tf.keras.layers.Dropout(.5)(y)
+
+        # y = tf.keras.layers.Dense(
+        #     num_hunits,
+        #     kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+        #     bias_initializer='zeros',
+        #     name='embedder')(y)
+        #y = tf.keras.layers.Activation('relu')(y)
+        y = tf.keras.layers.Dense(
+            1,
+            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+            bias_initializer='zeros')(y)
+        y = tf.keras.layers.Activation('sigmoid', name='cla')(y)
 
         # final model
-        return tf.keras.Model(inputs=inputs, outputs=[x, z])
-
+        return tf.keras.Model(inputs=inputs, outputs=[x, y])
 
     def build(input_shape, num_hunits, _label_smoothing=False):
         m = CAE._build(input_shape, num_hunits)
@@ -170,6 +115,10 @@ class CAE(tf.keras.Model):
                           tf.keras.losses.CategoricalCrossentropy(),
                           tf.keras.losses.BinaryCrossentropy(),
                       ],
+                      metrics={
+                          'cla': [tf.keras.metrics.Precision(),
+                                  tf.keras.metrics.Recall()]
+                      },
                       #run_eagerly=True,
         )
 
@@ -195,14 +144,21 @@ class CAE(tf.keras.Model):
         # grads = tape.gradient(loss, model.trainable_variables)
         # # apply gradient to main model
         # opt.apply_gradients(zip(grads, model.trainable_variables))
+        self.compiled_metrics.update_state(y, y_pred, [])
+        self.metrics[3].update_state(y[1], y_pred[1]) # precision
+        self.metrics[4].update_state(y[1], y_pred[1]) # precision
 
         return {m.name: m.result() for m in self.metrics}
 
     @tf.function
     def test_step(self, batch):
         x, y = batch
+
         y_pred = self(x, training=False)
         loss = self.compiled_loss(y, y_pred)
+
         self.compiled_metrics.update_state(y, y_pred, [])
+        self.metrics[3].update_state(y[1], y_pred[1]) # precision
+        self.metrics[4].update_state(y[1], y_pred[1]) # precision
 
         return {m.name: m.result() for m in self.metrics}
