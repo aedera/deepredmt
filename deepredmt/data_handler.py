@@ -33,7 +33,6 @@ def read_windows(infile):
 
             # editing extent
             ext = float(b[2])
-            ext = [1.0 - ext, ext]
             exts.append(ext)
 
     return np.asarray(wins), np.asarray(labels), np.array(exts)
@@ -48,18 +47,3 @@ def train_valid_split(wins, percentage=.8, seed=1234):
     valid_idxs = idxs[thr:]
 
     return [wins[i] for i in train_idxs], [wins[i] for i in valid_idxs]
-
-# def read_long_windows(infile):
-#     """read nucleotide windows along with their editing extents. Nucleotides are
-#     encoded as integers: 0:A 1:C 2:G 3:T 4:e 5:E
-#     """
-#     wins = {} # window sequences
-#     with open(infile) as f:
-#         for a in f:
-#             b = a.strip().split('\t')
-#             # window key
-#             key = b[0]
-#             # nucleotide window
-#             win = list(b[1])
-#             wins[key] = win
-#     return wins

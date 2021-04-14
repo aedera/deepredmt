@@ -18,7 +18,7 @@ tf.random.set_seed(seed_value)
 from . import _NT2ID # nucleotide 2 index
 from . import data_handler
 
-class DataGenerator():
+class DataGenerator(tf.keras.utils.Sequence):
         def __init__(self,
                      x, # nucleotide windows
                      y, # labels
@@ -26,6 +26,7 @@ class DataGenerator():
                      batch_size,
                      data_augmentation=False,
                      occlusion=False,
+                     label_smoothing=False,
                      shuffle=True):
                 # N, A, C, G, T. Minus one because states e and E are not considered
                 self.num_states = len(_NT2ID) - 2
@@ -39,6 +40,7 @@ class DataGenerator():
                 self.batch_size = int(np.floor(batch_size / self.num_labels))
                 self.occlusion = occlusion
                 self.data_augmentation = data_augmentation
+                self.label_smoothing = label_smoothing
                 self.shuffle = shuffle
 
                 # identify unedited and edited entries
@@ -49,11 +51,10 @@ class DataGenerator():
                 self._shuffle_data()
 
                 # self.y = tf.one_hot(y, depth=2)
-                # breakpoint()
-
                 self.data = tf.concat([x,
-                                       tf.one_hot(y, depth=2),
-                                       p], axis=1)
+                                       tf.expand_dims(y, 1),
+                                       tf.expand_dims(p, 1)], axis=1)
+
         def __len__(self):
                 return int(np.floor(self.min_len / float(self.get_batch_size())))
 
@@ -146,7 +147,8 @@ class DataGenerator():
 
                 # retrieve windows
                 slice = tf.nn.embedding_lookup(self.data, idx)
-                X, Y, Z = slice[:, 0:41], slice[:,41:43], slice[:,43:45]
+                X = slice[:, 0:41]
+                Y = slice[:,42:43] if self.label_smoothing else slice[:,41:42]
 
                 # edit and occlude windows
                 X = self._edit_wins(X)
@@ -156,7 +158,7 @@ class DataGenerator():
                 X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
                 X_occ = tf.one_hot(tf.cast(X_occ, tf.int32), depth=4)
 
-                return X, Y, Z, X_occ
+                return (X_occ, (X, Y))
 
         def _shuffle_data(self):
                 """Shuffle windows associated to each label and calculate indexes for negative
@@ -169,7 +171,10 @@ class DataGenerator():
                 if self.shuffle:
                         self._shuffle_data()
 
-def prepare_dataset(infile, augmentation=True, batch_size=16):
+def prepare_dataset(infile,
+                    augmentation=True,
+                    label_smoothing=True,
+                    batch_size=16):
         # x: wins
         # y: labels
         # p: editing extents
@@ -196,6 +201,7 @@ def prepare_dataset(infile, augmentation=True, batch_size=16):
                                   batch_size=batch_size,
                                   data_augmentation=augmentation,
                                   occlusion=augmentation,
+                                  label_smoothing=label_smoothing,
                                   shuffle=True)
         valid_gen = DataGenerator(x_valid,
                                   y_valid,
@@ -203,6 +209,7 @@ def prepare_dataset(infile, augmentation=True, batch_size=16):
                                   batch_size=batch_size,
                                   data_augmentation=False,
                                   occlusion=False,
+                                  label_smoothing=False,
                                   shuffle=True)
 
         return train_gen, valid_gen

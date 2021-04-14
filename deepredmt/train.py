@@ -133,6 +133,31 @@ def fit(train_gen,
         global _label_smoothing
         _label_smoothing = label_smoothing
 
+        import datetime
+        import tempfile
+        #tmpdir = tempfile.gettempdir()
+        datetime_tag = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        log_dir = "./logs/"  'foo/' + datetime_tag
+        callbacks = [
+                tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                               histogram_freq=1),
+                tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+                                                     factor=0.1,
+                                                     patience=5,
+                                                     verbose=1,
+                                                     min_lr=0.00001)]
+
+        from .models2 import CAE
+        model = CAE.build((41, 4), num_hidden_units)
+
+        model.fit(train_gen,
+                  epochs=100,
+                  validation_data=valid_gen,
+                  callbacks=callbacks,
+                  workers=16)
+
+        breakpoint()
+
         # define model and optimizer
         model = models.CAE(input_shape=(41, 4),
                            num_hunits=num_hidden_units)
