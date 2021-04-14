@@ -22,6 +22,9 @@ def read_windows(infile):
 
             # nucleotide window
             win = list(map(int, b[2]))
+
+            # occlude center position
+            win[len(win) // 2] = -1
             wins.append(win)
 
             # editing extent
