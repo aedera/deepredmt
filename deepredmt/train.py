@@ -77,5 +77,3 @@ def fit(fin,
                   validation_data=valid_gen,
                   callbacks=callbacks,
                   workers=16)
-
-        breakpoint()

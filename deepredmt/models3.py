@@ -1,7 +1,5 @@
 import tensorflow as tf
 
-from .layers import L2Normalization
-from .layers import Conv1DTranspose
 from .losses import reconstruction_loss_fn, classification_loss_fn
 
 
