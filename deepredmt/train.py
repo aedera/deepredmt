@@ -52,7 +52,11 @@ def fit(fin,
                                                  patience=7,
                                                  verbose=1)
         ]
-
+        from . import models3
+        # filters = [16, 32, 64, 128, 256, 512]
+        # xx = next(iter(train_gen))[0]
+        # d = models3.CAE(filters, 5)
+        # breakpoint()
         # save the model with the best validation loss
         if save_model:
                 model_file = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
@@ -63,9 +67,9 @@ def fit(fin,
                                 monitor='val_loss',
                                 verbose=1)
                 )
-        from .models3 import CAE
+        from .models3 import Deepredmt
         win_shape = (41, 4)
-        model = CAE.build(win_shape, num_hidden_units)
+        model = Deepredmt.build(win_shape, num_hidden_units)
         model.summary()
 
         model.fit(train_gen,
@@ -73,3 +77,5 @@ def fit(fin,
                   validation_data=valid_gen,
                   callbacks=callbacks,
                   workers=16)
+
+        breakpoint()
