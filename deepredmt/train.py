@@ -63,8 +63,7 @@ def fit(fin,
                                 monitor='val_loss',
                                 verbose=1)
                 )
-
-        from .models2 import CAE
+        from .models3 import CAE
         win_shape = (41, 4)
         model = CAE.build(win_shape, num_hidden_units)
         model.summary()
