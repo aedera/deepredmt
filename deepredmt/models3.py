@@ -42,6 +42,7 @@ class CAE(tf.keras.Model):
         x = tf.keras.layers.Flatten()(x)
         y = tf.keras.layers.Dense(
             num_hunits,
+            use_bias=False,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
             bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
@@ -49,6 +50,7 @@ class CAE(tf.keras.Model):
 
         x = tf.keras.layers.Dense(
             2*filters[-1],
+            use_bias=False,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
             bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
