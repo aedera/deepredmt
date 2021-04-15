@@ -41,7 +41,7 @@ class CAE(tf.keras.Model):
 
         x = tf.keras.layers.Flatten()(x)
         y = tf.keras.layers.Dense(
-            5,
+            num_hunits,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
             bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
@@ -118,7 +118,7 @@ class CAE(tf.keras.Model):
         # final model
         return tf.keras.Model(inputs=inputs, outputs=[x, y])
 
-    def build(input_shape, num_hunits, _label_smoothing=False):
+    def build(input_shape, num_hunits):
         m = CAE._build(input_shape, num_hunits)
         model = CAE(m.input, m.output, name='deepredmt')
 

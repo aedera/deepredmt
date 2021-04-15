@@ -50,7 +50,7 @@ def fit(fin,
                                                      verbose=1),
                 tf.keras.callbacks.EarlyStopping(monitor="val_loss",
                                                  patience=7,
-                                                 verbose=1),
+                                                 verbose=1)
         ]
 
         # save the model with the best validation loss
