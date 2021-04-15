@@ -7,7 +7,7 @@ from .losses import reconstruction_loss_fn, classification_loss_fn
 
 class CAE(tf.keras.Model):
     def _build(input_shape, num_hunits):
-        filters = [32, 64, 128, 256]
+        filters = [64, 128, 256, 512]
 
         inputs = tf.keras.Input(shape=input_shape)
         x = inputs
@@ -20,16 +20,20 @@ class CAE(tf.keras.Model):
                 dilation_rate=2**i,
                 strides=1,
                 kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                bias_initializer=tf.keras.initializers.he_normal(seed=1234),
                 kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                bias_regularizer=tf.keras.regularizers.l2(1e-3),
                 padding='same')(x)
             x = tf.keras.layers.Activation('relu')(x)
 
         x = tf.keras.layers.Conv1D(
-            16,
+            32,
             kernel_size=1,
             strides=1,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+            bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+            bias_regularizer=tf.keras.regularizers.l2(1e-3),
             padding='same')(x)
         x = tf.keras.layers.Activation('relu')(x)
 
@@ -39,7 +43,9 @@ class CAE(tf.keras.Model):
                 kernel_size=3,
                 strides=2,
                 kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                bias_initializer=tf.keras.initializers.he_normal(seed=1234),
                 kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                bias_regularizer=tf.keras.regularizers.l2(1e-3),
                 padding='same')(x)
             x = tf.keras.layers.Activation('relu')(x)
 
@@ -52,7 +58,9 @@ class CAE(tf.keras.Model):
             strides=2,
             padding='same',
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+            bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+            bias_regularizer=tf.keras.regularizers.l2(1e-3),
             output_padding=None)(y)
         x = tf.keras.layers.Activation('relu')(x)
 
@@ -63,7 +71,9 @@ class CAE(tf.keras.Model):
                 strides=2,
                 padding='same',
                 kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                bias_initializer=tf.keras.initializers.he_normal(seed=1234),
                 kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                bias_regularizer=tf.keras.regularizers.l2(1e-3),
                 output_padding=(1))(x)
             x = tf.keras.layers.Activation('relu')(x)
 
@@ -74,7 +84,9 @@ class CAE(tf.keras.Model):
             strides=2,
             padding='same',
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+            bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+            bias_regularizer=tf.keras.regularizers.l2(1e-3),
             output_padding=(1))(x)
         x = tf.keras.layers.Activation('softmax', name='rec')(x)
 
@@ -82,23 +94,21 @@ class CAE(tf.keras.Model):
         y = tf.keras.layers.Flatten()(y)
         for i in range(7):
             y = tf.keras.layers.Dense(
-                (3*256) // (2**i),
+                (3*512) // (2**i),
                 kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-                bias_initializer='zeros')(y)
+                bias_initializer=tf.keras.initializers.he_normal(seed=1234),
+                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                bias_regularizer=tf.keras.regularizers.l2(1e-3))(y)
             y = tf.keras.layers.BatchNormalization()(y)
             y = tf.keras.layers.Activation('relu')(y)
             y = tf.keras.layers.Dropout(.5)(y)
 
-        # y = tf.keras.layers.Dense(
-        #     num_hunits,
-        #     kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     bias_initializer='zeros',
-        #     name='embedder')(y)
-        #y = tf.keras.layers.Activation('relu')(y)
         y = tf.keras.layers.Dense(
             1,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer='zeros')(y)
+            bias_initializer=tf.keras.initializers.he_normal(seed=1234),
+            kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+            bias_regularizer=tf.keras.regularizers.l2(1e-3))(y)
         y = tf.keras.layers.Activation('sigmoid', name='cla')(y)
 
         # final model

@@ -22,14 +22,15 @@ tf.random.set_seed(seed_value)
 
 from . import utils
 
-def fit(fin,
-        augmentation=True,
-        label_smoothing=True,
-        num_hidden_units=5,
-        batch_size=16,
-        epochs=100,
-        training_set_size=.8,
-        save_model=False):
+def tune(fin,
+         tf_model,
+         augmentation=True,
+         label_smoothing=True,
+         num_hidden_units=5,
+         batch_size=16,
+         epochs=100,
+         training_set_size=.8,
+         save_model=False):
 
         # prepare training and validation datasets
         train_gen, valid_gen = utils.prepare_dataset(
@@ -46,11 +47,12 @@ def fit(fin,
                                                histogram_freq=1),
                 tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                      factor=0.1,
-                                                     patience=3,
+                                                     patience=5,
                                                      verbose=1),
                 tf.keras.callbacks.EarlyStopping(monitor="val_loss",
                                                  patience=7,
-                                                 verbose=1),
+                                                 verbose=1,
+                                                 restore_best_weights=True),
         ]
 
         # save the model with the best validation loss
@@ -64,9 +66,7 @@ def fit(fin,
                                 verbose=1)
                 )
 
-        from .models2 import CAE
-        win_shape = (41, 4)
-        model = CAE.build(win_shape, num_hidden_units)
+        model = tf.keras.models.load_model(tf_model, compile=True)
         model.summary()
 
         model.fit(train_gen,
