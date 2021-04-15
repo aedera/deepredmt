@@ -66,7 +66,18 @@ def tune(fin,
                                 verbose=1)
                 )
 
-        model = tf.keras.models.load_model(tf_model, compile=True)
+        pretrained_model = tf.keras.models.load_model(tf_model, compile=False)
+
+        from .models3 import CAE
+        win_shape = (41, 4)
+        model = CAE.build(win_shape, num_hidden_units)
+
+        model.set_weights(pretrained_model.get_weights())
+        model.optimizer.learning_rate = 0.0001
+
+        # for l in ['conv1d', 'conv1d_1', 'conv1d_2', 'conv1d_3', 'conv1d_4', 'conv1d_5', 'conv1d_6', 'dense', 'dense_1', 'conv1d_transpose', 'conv1d_transpose_1',  'conv1d_transpose_2', 'conv1d_transpose_3', 'conv1d_transpose_4', 'conv1d_7', ]:
+        #         model.get_layer(l).trainable = False
+
         model.summary()
 
         model.fit(train_gen,
