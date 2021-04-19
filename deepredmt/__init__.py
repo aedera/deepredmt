@@ -17,3 +17,5 @@ from .train import fit
 from .finetune import tune
 from .predict import predict
 from .predict import pr_measures
+from .pretrain1 import pretrain
+from .project import project

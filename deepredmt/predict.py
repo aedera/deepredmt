@@ -17,7 +17,7 @@ def predict(fin, tf_model, batch_size=512):
     model = tf.keras.models.load_model(tf_model, compile='False')
     preds = model.predict(x, batch_size=batch_size)
 
-    return preds[1]
+    return preds
 
 def performance(y_true, y_pred):
     re = sklearn.metrics.recall_score(y_true, y_pred) #, average='micro')
@@ -36,8 +36,12 @@ def pr_measures(fin, tf_model, batch_size=512):
     x = tf.one_hot(x, depth=4)
     model = tf.keras.models.load_model(tf_model, compile='False')
     y_pred = model.predict(x, batch_size=batch_size)[1]
-    y_pred = y_pred[:,0]
+    y_pred = y_pred
 
-    measures = [performance(y_true > 0, y_pred >= t) for t in np.arange(0., 1., .1)]
+    measures = []
+    for t in np.arange(0., 1., .1):
+        tn, fp, fn, tp = sklearn.metrics.confusion_matrix(y_true, y_pred >= t).ravel()
+        re, pr, f1 = performance(y_true, y_pred >= t)
+        measures.append([tn, fp, fn, tp, re, pr, f1])
 
     return measures

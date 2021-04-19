@@ -21,6 +21,45 @@ np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
 from . import utils
+from . import models3
+from .models3 import Deepredmt
+
+def scheduler(epoch, lr):
+        if epoch < 10:
+                return (lr * (epoch+1))/10
+        else:
+                return lr
+
+def callbacks(save_model):
+        datetime_tag = datetime.datetime.now().strftime("%y%m%d-%H%M")
+        log_dir = "./logs/"  'deepredmt/' + datetime_tag
+        callbacks = [
+                tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                               histogram_freq=1),
+                tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+                                                     factor=0.1,
+                                                     patience=3,
+                                                     verbose=1),
+                # tf.keras.callbacks.EarlyStopping(monitor="val_loss",
+                #                                  patience=4,
+                #                                  verbose=1),
+                # tf.keras.callbacks.LearningRateScheduler(scheduler,
+                #                                          verbose=1)
+        ]
+
+        # save the model with the best validation loss
+        if save_model:
+                model_file = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
+                callbacks.append(
+                        tf.keras.callbacks.ModelCheckpoint(
+                                model_file,
+                                save_best_only=True,
+                                monitor='val_loss',
+                                verbose=1)
+                )
+
+        return callbacks
+
 
 def fit(fin,
         augmentation=True,
@@ -35,45 +74,18 @@ def fit(fin,
         train_gen, valid_gen = utils.prepare_dataset(
                 fin,
                 augmentation=augmentation,
-                label_smoothing=label_smoothing,
+                label_smoothing=True,
                 training_set_size=training_set_size,
-                batch_size=batch_size)
-
-        datetime_tag = datetime.datetime.now().strftime("%y%m%d-%H%M")
-        log_dir = "./logs/"  'deepredmt/' + datetime_tag
-        callbacks = [
-                tf.keras.callbacks.TensorBoard(log_dir=log_dir,
-                                               histogram_freq=1),
-                tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
-                                                     factor=0.1,
-                                                     patience=3,
-                                                     verbose=1),
-                tf.keras.callbacks.EarlyStopping(monitor="val_loss",
-                                                 patience=7,
-                                                 verbose=1)
-        ]
-        from . import models3
-        # filters = [16, 32, 64, 128, 256, 512]
-        # xx = next(iter(train_gen))[0]
-        # d = models3.CAE(filters, 5)
-        # breakpoint()
-        # save the model with the best validation loss
-        if save_model:
-                model_file = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
-                callbacks.append(
-                        tf.keras.callbacks.ModelCheckpoint(
-                                model_file,
-                                save_best_only=True,
-                                monitor='val_loss',
-                                verbose=1)
-                )
-        from .models3 import Deepredmt
+                occlude_target=True,
+                batch_size=batch_size
+        )
         win_shape = (41, 4)
         model = Deepredmt.build(win_shape, num_hidden_units)
+        model.get_layer('encoder').summary()
         model.summary()
 
         model.fit(train_gen,
                   epochs=epochs,
                   validation_data=valid_gen,
-                  callbacks=callbacks,
+                  callbacks=callbacks(save_model),
                   workers=16)

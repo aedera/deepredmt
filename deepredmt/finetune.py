@@ -21,25 +21,9 @@ np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
 from . import utils
+from .models3 import CAE, Deepredmt
 
-def tune(fin,
-         tf_model,
-         augmentation=True,
-         label_smoothing=True,
-         num_hidden_units=5,
-         batch_size=16,
-         epochs=100,
-         training_set_size=.8,
-         save_model=False):
-
-        # prepare training and validation datasets
-        train_gen, valid_gen = utils.prepare_dataset(
-                fin,
-                augmentation=augmentation,
-                label_smoothing=label_smoothing,
-                training_set_size=training_set_size,
-                batch_size=batch_size)
-
+def callbacks(save_model):
         datetime_tag = datetime.datetime.now().strftime("%y%m%d-%H%M")
         log_dir = "./logs/"  'deepredmt/' + datetime_tag
         callbacks = [
@@ -47,12 +31,13 @@ def tune(fin,
                                                histogram_freq=1),
                 tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                      factor=0.1,
-                                                     patience=5,
+                                                     patience=3,
                                                      verbose=1),
-                tf.keras.callbacks.EarlyStopping(monitor="val_loss",
-                                                 patience=7,
-                                                 verbose=1,
-                                                 restore_best_weights=True),
+                # tf.keras.callbacks.EarlyStopping(monitor="val_loss",
+                #                                  patience=4,
+                #                                  verbose=1),
+                # tf.keras.callbacks.LearningRateScheduler(scheduler,
+                #                                          verbose=1)
         ]
 
         # save the model with the best validation loss
@@ -66,22 +51,41 @@ def tune(fin,
                                 verbose=1)
                 )
 
-        pretrained_model = tf.keras.models.load_model(tf_model, compile=False)
+        return callbacks
 
-        from .models3 import CAE
+
+def tune(fin,
+        augmentation=True,
+        label_smoothing=True,
+        num_hidden_units=5,
+        batch_size=16,
+        epochs=100,
+        training_set_size=.8,
+        save_model=False):
+
+        # prepare training and validation datasets
+        train_gen, valid_gen = utils.prepare_dataset(
+                fin,
+                augmentation=augmentation,
+                label_smoothing=True,
+                training_set_size=training_set_size,
+                occlude_target=False,
+                batch_size=batch_size)
+
         win_shape = (41, 4)
-        model = CAE.build(win_shape, num_hidden_units)
-
-        model.set_weights(pretrained_model.get_weights())
-        model.optimizer.learning_rate = 0.0001
-
-        # for l in ['conv1d', 'conv1d_1', 'conv1d_2', 'conv1d_3', 'conv1d_4', 'conv1d_5', 'conv1d_6', 'dense', 'dense_1', 'conv1d_transpose', 'conv1d_transpose_1',  'conv1d_transpose_2', 'conv1d_transpose_3', 'conv1d_transpose_4', 'conv1d_7', ]:
-        #         model.get_layer(l).trainable = False
-
+        model = Deepredmt.build(win_shape, num_hidden_units)
+        model.get_layer('encoder').summary()
         model.summary()
+
+        m_fin = '/home/ae/exp/21/fa-deepredmt.m/yc-testing-deepred-mt/models/deepredmt/210419-0845.tf'
+
+        pretrained = tf.keras.models.load_model(m_fin,
+                                                compile=False)
+        model.set_weights(pretrained.get_weights())
+
 
         model.fit(train_gen,
                   epochs=epochs,
                   validation_data=valid_gen,
-                  callbacks=callbacks,
+                  callbacks=callbacks(save_model),
                   workers=16)

@@ -28,24 +28,31 @@ class DataGenerator(tf.keras.utils.Sequence):
                      occlusion=False,
                      label_smoothing=False,
                      shuffle=True):
-                # N, A, C, G, T. Minus one because states e and E are not considered
-                self.num_states = len(_NT2ID) - 2
                 # number of examples for each class label
-                self.label_counter = np.unique(y, return_counts=True)[1]
-                self.num_labels = len(self.label_counter)
-                # number of examples for the minority class
-                self.min_len = min(self.label_counter)
-                # the batch_size is divided by the number of labels, as mini
-                # batches are balanced
-                self.batch_size = int(np.floor(batch_size / self.num_labels))
-                self.occlusion = occlusion
-                self.data_augmentation = data_augmentation
-                self.label_smoothing = label_smoothing
-                self.shuffle = shuffle
 
                 # identify unedited and edited entries
                 self.neg_idx = np.where(y == 0)[0]
                 self.pos_idx = np.where(y == 1)[0]
+
+                # outsample positives
+                # if len(self.neg_idx) > len(self.pos_idx):
+                #         folds = int(np.ceil(len(self.neg_idx)/len(self.pos_idx)))
+                #         self.pos_idx = np.repeat(self.pos_idx, folds)
+                # else:
+                #         folds = int(np.ceil(len(self.pos_idx)/len(self.neg_idx)))
+                #         self.neg_idx = np.repeat(self.neg_idx, folds)
+
+                # number of examples for the minority class
+                self.min_len = min([len(self.neg_idx), len(self.pos_idx)])
+
+                # the batch_size is divided by the number of labels, as mini
+                # batches are balanced
+                self.batch_size = int(np.floor(batch_size / 2))
+
+                self.occlusion = occlusion
+                self.data_augmentation = data_augmentation
+                self.label_smoothing = label_smoothing
+                self.shuffle = shuffle
 
                 # shuffle data
                 self._shuffle_data()
@@ -55,13 +62,19 @@ class DataGenerator(tf.keras.utils.Sequence):
                                        tf.expand_dims(y, 1),
                                        tf.expand_dims(p, 1)], axis=1)
 
+                # batch mask for occluding target position
+                target_pos = 20
+                win_len = 41
+                self.target_mask = tf.one_hot(target_pos, depth=win_len)
+                self.target_mask = tf.expand_dims(self.target_mask, 0)
+                self.target_mask = tf.tile(self.target_mask, (batch_size, 1))
+                self.target_mask = tf.cast(self.target_mask, tf.bool)
+                self.target_mask = tf.logical_not(self.target_mask)
+
         def __len__(self):
                 return int(np.floor(self.min_len / float(self.get_batch_size())))
 
         def get_batch_size(self):
-                # batch augmentation is applied when occlusion is True, so
-                # batch_size is halved
-                #return int(self.batch_size / 2) if self.occlusion else self.batch_size
                 return self.batch_size
 
         def _edit_wins(self, X):
@@ -88,7 +101,12 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 return new_X
 
-        def occlude(self, X, maxlen=5):
+        def occlude_random(self, X, maxlen=0.7):
+                mask = tf.random.uniform(X.shape)
+
+                return tf.where(mask > maxlen, X, -1)
+
+        def occlude_block(self, X, maxlen=10):
                 """
                 Arg
                 ---
@@ -97,8 +115,6 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 maxlen: integer indicating the maximum length of occluded regions
                 """
-                maxlen = 5
-
                 # length of the occluded regions
                 occlen = tf.random.uniform((1,),
                                            minval=0,
@@ -147,12 +163,24 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 # retrieve windows
                 slice = tf.nn.embedding_lookup(self.data, idx)
-                X = slice[:, 0:41]
-                Y = slice[:,42:43] if self.label_smoothing else slice[:,41:42]
+                X = slice[:, 0:41] # windows
+                Y = slice[:,41:42] # labels
+                P = slice[:,42:43] # editing extents
 
                 # edit and occlude windows
                 X = self._edit_wins(X)
-                X_occ = self.occlude(X) if self.occlusion else X
+                if self.occlusion:
+                        if tf.random.uniform((1,))[0] > 0.5:
+                                X_occ = self.occlude_block(X)
+                                X_occ = self.occlude_block(X_occ)
+                        else:
+                                X_occ = self.occlude_random(X)
+                else:
+                        X_occ = X
+
+                # occlude target position regardless the value of
+                # self.occlusion
+                X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
 
                 # convert windows into one-hot representations
                 X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
@@ -174,13 +202,20 @@ class DataGenerator(tf.keras.utils.Sequence):
 def prepare_dataset(infile,
                     augmentation=True,
                     label_smoothing=True,
+                    occlude_target=True,
                     training_set_size=.8,
+                    read_labels=True,
+                    read_edexts=True,
+
                     batch_size=16):
 
         # x: wins  (num_wins, 41)
         # y: labels (num_wins, 1)
         # p: editing extents (num_wins, 1)
-        x, y, p  = data_handler.read_windows(infile, read_labels=True)
+        x, y, p  = data_handler.read_windows(infile,
+                                             read_labels=read_labels,
+                                             read_edexts=read_edexts,
+                                             occlude_target=occlude_target)
 
         # indices of negative and positive windows
         neg_idx = np.where(y == 0)[0]
@@ -190,12 +225,16 @@ def prepare_dataset(infile,
         neg_train_idx, neg_valid_idx = data_handler.train_valid_split(neg_idx, percentage=training_set_size)
         pos_train_idx, pos_valid_idx = data_handler.train_valid_split(pos_idx, percentage=training_set_size)
 
+
         train_idx = neg_train_idx + pos_train_idx
         valid_idx = neg_valid_idx + pos_valid_idx
 
         x_train = x[train_idx,:].astype(np.float32)
         y_train = y[train_idx].astype(np.float32)
         p_train = p[train_idx].astype(np.float32)
+        # x_train = x.astype(np.float32)
+        # y_train = y.astype(np.float32)
+        # p_train = p.astype(np.float32)
 
         x_valid = x[valid_idx,:].astype(np.float32)
         y_valid = y[valid_idx].astype(np.float32)

@@ -3,11 +3,13 @@ import sys
 import random
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras as keras
 
 from . import _NT2ID # nucleotide 2 index
 
-def read_windows(infile, read_labels=True, read_edexts=True):
+def read_windows(infile,
+                 read_labels=True,
+                 read_edexts=True,
+                 occlude_target=True):
     """read nucleotide windows along with their editing extents. Nucleotides are
     encoded as integers: 0:A 1:C 2:G 3:T 4:e 5:E
     """
@@ -24,7 +26,8 @@ def read_windows(infile, read_labels=True, read_edexts=True):
             # nucleotides to indexes
             win = [_NT2ID[n] for n in win]
             # occlude center position
-            win[len(win) // 2] = -1
+            if occlude_target:
+                win[len(win) // 2] = _NT2ID['N']
             wins.append(win)
 
             if read_labels:
