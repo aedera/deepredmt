@@ -23,8 +23,29 @@ tf.random.set_seed(seed_value)
 from . import utils
 from .models3 import CAE, Deepredmt
 
-def callbacks(save_model):
-        datetime_tag = datetime.datetime.now().strftime("%y%m%d-%H%M")
+# class CustomCallback(tf.keras.callbacks.Callback):
+#         def on_epoch_end(self, epoch, logs=None):
+#                 # keys = list(logs.keys())
+#                 # print("End epoch {} of training; got log keys: {}".format(epoch, keys))
+#                 if epoch + 1 >= 3 and not self.model.get_layer('encoder').trainable:
+#                         self.model.get_layer('encoder').trainable = True
+#                         breakpoint()
+#                 print(self.model.get_layer('encoder').trainable)
+
+learning_rate = 0.001
+
+def scheduler(epoch, lr):
+        warmup_steps = 20
+
+        if epoch < warmup_steps:
+                new_lr =  learning_rate * min(1, (epoch+1)/warmup_steps)
+                print('new_lr=', new_lr)
+                return new_lr
+        else:
+                return lr
+
+def callbacks(datetime_tag, model_name=None):
+
         log_dir = "./logs/"  'deepredmt/' + datetime_tag
         callbacks = [
                 tf.keras.callbacks.TensorBoard(log_dir=log_dir,
@@ -33,19 +54,19 @@ def callbacks(save_model):
                                                      factor=0.1,
                                                      patience=3,
                                                      verbose=1),
+                #CustomCallback(),
                 # tf.keras.callbacks.EarlyStopping(monitor="val_loss",
                 #                                  patience=4,
                 #                                  verbose=1),
                 # tf.keras.callbacks.LearningRateScheduler(scheduler,
-                #                                          verbose=1)
+                #                                          verbose=0)
         ]
 
         # save the model with the best validation loss
-        if save_model:
-                model_file = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
+        if model_name is not None:
                 callbacks.append(
                         tf.keras.callbacks.ModelCheckpoint(
-                                model_file,
+                                model_name,
                                 save_best_only=True,
                                 monitor='val_loss',
                                 verbose=1)
@@ -53,39 +74,68 @@ def callbacks(save_model):
 
         return callbacks
 
+def define_model(tf_fin):
+        pretrained = tf.keras.models.load_model(tf_fin,
+                                                compile=False)
+
+        x = pretrained.input
+        y = pretrained.output
+        model = tf.keras.Model(inputs=x, outputs=y[1])
+
+        return model
 
 def tune(fin,
-        augmentation=True,
-        label_smoothing=True,
-        num_hidden_units=5,
-        batch_size=16,
-        epochs=100,
-        training_set_size=.8,
-        save_model=False):
+         tf_fin,
+         augmentation=True,
+         label_smoothing=True,
+         num_hidden_units=5,
+         batch_size=16,
+         epochs=100,
+         training_set_size=.8,
+         save_model=False):
 
-        # prepare training and validation datasets
         train_gen, valid_gen = utils.prepare_dataset(
                 fin,
-                augmentation=augmentation,
+                augmentation=True,
                 label_smoothing=True,
                 training_set_size=training_set_size,
-                occlude_target=False,
-                batch_size=batch_size)
+                occlude_target=True,
+                batch_size=batch_size
+        )
 
-        win_shape = (41, 4)
-        model = Deepredmt.build(win_shape, num_hidden_units)
-        model.get_layer('encoder').summary()
+        model = define_model(tf_fin)
+        #model.get_layer('decoder').trainable = False
         model.summary()
 
-        m_fin = '/home/ae/exp/21/fa-deepredmt.m/yc-testing-deepred-mt/models/deepredmt/210419-0845.tf'
+        optimizer = tf.keras.optimizers.Adam()
+        optimizer.learning_rate = 1e-5
+        model.compile(optimizer,
+                      loss = [
+                          tf.keras.losses.CategoricalCrossentropy(),
+                          tf.keras.losses.BinaryCrossentropy(),
+                          tf.keras.losses.MeanAbsoluteError(),
+                      ],
+                      metrics = {
+                          'cla': [
+                              tf.keras.metrics.Precision(),
+                              tf.keras.metrics.Recall(),
+                              tf.keras.metrics.MeanSquaredError()
+                          ],
+                      },
+                      #run_eagerly=True,
+                      )
 
-        pretrained = tf.keras.models.load_model(m_fin,
-                                                compile=False)
-        model.set_weights(pretrained.get_weights())
+        datetime_tag = datetime.datetime.now().strftime("%y%m%d-%H%M")
+        save_model = True
+        if save_model:
+                #model_name = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
+                model_name = './models/deepredmt/finetune-01.tf'
+        else:
+                model_name = None
 
-
+        model_name = None
         model.fit(train_gen,
-                  epochs=epochs,
+                  epochs=60,
                   validation_data=valid_gen,
-                  callbacks=callbacks(save_model),
+                  callbacks=callbacks(datetime_tag, model_name),
                   workers=16)

@@ -1,28 +1,5 @@
 import tensorflow as tf
 
-
-def convolutional_block(num_repetition, filters, kernel_size, name):
-    block = []
-
-    for i in range(num_repetition):
-        block += [
-            tf.keras.layers.Conv1D(
-                filters,
-                kernel_size=kernel_size,
-                strides=1,
-                name=name+'_{}'.format(i),
-                kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-                bias_initializer=tf.keras.initializers.he_normal(seed=1234),
-                kernel_regularizer=tf.keras.regularizers.l2(1e-4),
-                bias_regularizer=tf.keras.regularizers.l2(1e-4),
-                padding='same'),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.Activation('relu'),
-        ]
-
-    return block
-
-
 class CAE(tf.keras.Model):
     """Convolutional AutoEncoder"""
 
@@ -38,11 +15,21 @@ class CAE(tf.keras.Model):
         enco_layers.append(tf.keras.layers.BatchNormalization())
 
         # window preprocessing
-        enco_layers += convolutional_block(
-            3,
-            filters=self.filters[0],
-            kernel_size=3,
-            name='conv1d_0')
+        for i in range(3):
+            enco_layers += [
+                tf.keras.layers.Conv1D(
+                    filters=self.filters[0],
+                    kernel_size=3,
+                    strides=1,
+                    name='conv1d_0'+'_{}'.format(i),
+                    kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
+                    bias_initializer=tf.keras.initializers.he_normal(seed=1234),
+                    kernel_regularizer=tf.keras.regularizers.l2(1e-4),
+                    bias_regularizer=tf.keras.regularizers.l2(1e-4),
+                    padding='same'),
+                tf.keras.layers.BatchNormalization(),
+                tf.keras.layers.Activation('relu'),
+            ]
 
         enco_layers += [
             tf.keras.layers.Conv1D(
@@ -90,11 +77,6 @@ class CAE(tf.keras.Model):
                 kernel_regularizer=tf.keras.regularizers.l2(1e-4),
                 bias_regularizer=tf.keras.regularizers.l2(1e-4))
         )
-
-        # enco_layers.append(
-        #     tf.keras.layers.BatchNormalization()
-        # )
-        #enco_layers.append(tf.keras.layers.Activation('relu'))
 
         deco_layers.append(
             tf.keras.layers.Dense(
@@ -220,38 +202,13 @@ class Deepredmt(tf.keras.Model):
 
         p = cae.encode(x)
         x_rec = cae.decode(p)
-        # p = tf.keras.layers.Dropout(0.5)(p)
-        # p = tf.keras.layers.Dense(
-        #     5,
-        #     kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     bias_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-        #     bias_regularizer=tf.keras.regularizers.l2(1e-6))(p)
-        #p = tf.keras.layers.Activation('relu')(p)
-        # p = tf.keras.layers.Dropout(0.5)(p)
-        # p = tf.keras.layers.Dense(
-        #     5,
-        #     kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     bias_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-        #     bias_regularizer=tf.keras.regularizers.l2(1e-6))(p)
-        # p = tf.keras.layers.Activation('relu')(p)
-        # p = tf.keras.layers.Dropout(0.5)(p)
-        # p = tf.keras.layers.Dense(
-        #     5,
-        #     kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     bias_initializer=tf.keras.initializers.he_normal(seed=1234),
-        #     kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-        #     bias_regularizer=tf.keras.regularizers.l2(1e-6))(p)
-        # p = tf.keras.layers.Activation('relu')(p)
-        # p = tf.keras.layers.Dropout(0.5)(p)
 
         y = tf.keras.layers.Dense(
             2,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
             bias_initializer=tf.keras.initializers.he_normal(seed=1234),
             kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-            bias_regularizer=tf.keras.regularizers.l2(1e-6))(p)
+            bias_regularizer=tf.keras.regularizers.l1(1e-6))(p)
         y = tf.keras.layers.Dense(
             1,
             kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
@@ -260,55 +217,34 @@ class Deepredmt(tf.keras.Model):
             bias_regularizer=tf.keras.regularizers.l2(1e-4))(y)
         y = tf.keras.layers.Activation('sigmoid', name='cla')(y)
 
-        z = tf.keras.layers.Dense(
-            1,
-            kernel_initializer=tf.keras.initializers.he_normal(seed=1234),
-            bias_initializer=tf.keras.initializers.he_normal(seed=1234),
-            kernel_regularizer=tf.keras.regularizers.l2(1e-6),
-            bias_regularizer=tf.keras.regularizers.l2(1e-6))(p)
-        z = tf.keras.layers.Activation('sigmoid', name='reg')(z)
-
         # final model
-        return tf.keras.Model(inputs=inputs, outputs=[x_rec, y])
+        return tf.keras.Model(inputs=inputs, outputs=[x_rec, y, y])
 
     def build(input_shape, num_hunits):
         filters = [16, 32, 64, 128, 256, 512]
-        num_hunits = 10 #<<<<<<<<<<<<<<<<<<<<<<<<<
 
         cae = CAE(filters, num_hunits)
         cae.build(input_shape)
-
-
 
         m = Deepredmt._build(input_shape, cae)
         model = Deepredmt(m.input, m.output, name='deepredmt')
 
         optimizer = tf.keras.optimizers.Adam()
-
-
         model.compile(optimizer=optimizer,
                       loss = [
                           tf.keras.losses.CategoricalCrossentropy(),
                           tf.keras.losses.BinaryCrossentropy(),
-                          tf.keras.losses.BinaryCrossentropy(),
+                          tf.keras.losses.MeanAbsoluteError(),
                       ],
                       metrics = {
                           'cla': [
                               tf.keras.metrics.Precision(),
                               tf.keras.metrics.Recall(),
+                              tf.keras.metrics.MeanSquaredError()
                           ],
-                          #'reg': tf.keras.metrics.MeanSquaredError()
                       },
                       #run_eagerly=True,
         )
-
-        # m_fin = '/home/ae/exp/21/fa-deepredmt.m/yc-testing-deepred-mt/models/deepredmt/210419-0940.tf'
-
-        # pretrained_cae = tf.keras.models.load_model(m_fin,
-        #                                             compile=False)
-        # model.set_weights(pretrained_cae.get_weights())
-        # # #model.get_layer('decoder').trainable = False
-        # optimizer.learning_rate = 0.000001
 
         return model
 
@@ -320,7 +256,6 @@ class Deepredmt(tf.keras.Model):
             y_pred = self(x, training=True)
             loss = self.compiled_loss(y, y_pred)
 
-        #breakpoint()
         # compute gradients
         variables = self.trainable_variables
         grad = tape.gradient(loss, variables)
@@ -328,14 +263,10 @@ class Deepredmt(tf.keras.Model):
         self.optimizer.apply_gradients(zip(grad, variables))
 
         self.compiled_metrics.update_state(y, y_pred, [])
-        #breakpoint()
 
-        self.metrics[3].update_state(y[1], y_pred[1]) # precision
-        self.metrics[4].update_state(y[1], y_pred[1]) # recall
-
-        # self.metrics[4].update_state(y[1], y_pred[1]) # precision
-        # self.metrics[5].update_state(y[1], y_pred[1]) # recall
-        # self.metrics[6].update_state(y[2], y_pred[2]) # MSE
+        self.metrics[4].update_state(y[1], y_pred[1]) # precision
+        self.metrics[5].update_state(y[1], y_pred[1]) # recall
+        self.metrics[6].update_state(y[2], y_pred[2]) # MSE
 
         return {m.name: m.result() for m in self.metrics}
 
@@ -348,11 +279,8 @@ class Deepredmt(tf.keras.Model):
 
         self.compiled_metrics.update_state(y, y_pred, [])
 
-        self.metrics[3].update_state(y[1], y_pred[1]) # precision
-        self.metrics[4].update_state(y[1], y_pred[1]) # recall
-
-        # self.metrics[4].update_state(y[1], y_pred[1]) # precision
-        # self.metrics[5].update_state(y[1], y_pred[1]) # recall
-        # self.metrics[6].update_state(y[2], y_pred[2]) # MSE
+        self.metrics[4].update_state(y[1], y_pred[1]) # precision
+        self.metrics[5].update_state(y[1], y_pred[1]) # recall
+        self.metrics[6].update_state(y[2], y_pred[2]) # MSE
 
         return {m.name: m.result() for m in self.metrics}

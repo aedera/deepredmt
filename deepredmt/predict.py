@@ -7,8 +7,8 @@ from . import _NT2ID # nucleotide 2 index
 
 def predict(fin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
-    _NT2ID['E'] = _NT2ID['T']
-    _NT2ID['e'] = _NT2ID['T']
+    _NT2ID['E'] = _NT2ID['C']
+    _NT2ID['e'] = _NT2ID['C']
     x = data_handler.read_windows(fin,
                                   read_labels=False,
                                   read_edexts=False)[0]
@@ -28,8 +28,8 @@ def performance(y_true, y_pred):
 
 def pr_measures(fin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
-    _NT2ID['E'] = _NT2ID['T']
-    _NT2ID['e'] = _NT2ID['T']
+    _NT2ID['E'] = _NT2ID['C']
+    _NT2ID['e'] = _NT2ID['C']
     x, y_true = data_handler.read_windows(fin,
                                           read_labels=True,
                                           read_edexts=False)

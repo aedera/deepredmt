@@ -27,6 +27,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                      data_augmentation=False,
                      occlusion=False,
                      label_smoothing=False,
+                     target_occlusion=True,
                      shuffle=True):
                 # number of examples for each class label
 
@@ -52,6 +53,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                 self.occlusion = occlusion
                 self.data_augmentation = data_augmentation
                 self.label_smoothing = label_smoothing
+                self.target_occlusion = target_occlusion
                 self.shuffle = shuffle
 
                 # shuffle data
@@ -94,7 +96,9 @@ class DataGenerator(tf.keras.utils.Sequence):
                 if self.data_augmentation:
                         # sample esites
                         random_mask = tf.random.uniform(X.shape)
-                        sample_mask = tf.greater(random_mask, .5)
+                        cutoff = tf.random.uniform((X.shape[0], 1))
+                        #sample_mask = tf.greater(random_mask, .5)
+                        sample_mask = tf.greater(random_mask, cutoff)
                         sampled_esites = tf.math.logical_and(sample_mask, esites_mask)
 
                         new_X = tf.where(sampled_esites, _NT2ID['T'], new_X)
@@ -178,15 +182,16 @@ class DataGenerator(tf.keras.utils.Sequence):
                 else:
                         X_occ = X
 
-                # occlude target position regardless the value of
-                # self.occlusion
-                X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
+                # occlude target positions
+                #if self.target_occlusion:
+                if tf.random.uniform((1,))[0] > 0.9:
+                        X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
 
                 # convert windows into one-hot representations
                 X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
                 X_occ = tf.one_hot(tf.cast(X_occ, tf.int32), depth=4)
 
-                return (X_occ, (X, Y))
+                return (X_occ, (X, Y, P))
 
         def _shuffle_data(self):
                 """Shuffle windows associated to each label and calculate indexes for negative
@@ -215,7 +220,7 @@ def prepare_dataset(infile,
         x, y, p  = data_handler.read_windows(infile,
                                              read_labels=read_labels,
                                              read_edexts=read_edexts,
-                                             occlude_target=occlude_target)
+                                             occlude_target=False)
 
         # indices of negative and positive windows
         neg_idx = np.where(y == 0)[0]
@@ -247,6 +252,7 @@ def prepare_dataset(infile,
                                   data_augmentation=augmentation,
                                   occlusion=augmentation,
                                   label_smoothing=label_smoothing,
+                                  target_occlusion=occlude_target,
                                   shuffle=True)
         valid_gen = DataGenerator(x_valid,
                                   y_valid,
@@ -255,6 +261,7 @@ def prepare_dataset(infile,
                                   data_augmentation=False,
                                   occlusion=False,
                                   label_smoothing=False,
+                                  target_occlusion=occlude_target,
                                   shuffle=True)
 
         return train_gen, valid_gen
