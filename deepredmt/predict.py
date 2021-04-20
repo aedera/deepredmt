@@ -26,7 +26,7 @@ def performance(y_true, y_pred):
 
     return re, pr, f1
 
-def pr_measures(fin, tf_model, batch_size=512):
+def pr_curve(fin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
@@ -38,10 +38,11 @@ def pr_measures(fin, tf_model, batch_size=512):
     y_pred = model.predict(x, batch_size=batch_size)[1]
     y_pred = y_pred
 
-    measures = []
-    for t in np.arange(0., 1., .1):
+    for t in np.arange(0., 1., .01):
         tn, fp, fn, tp = sklearn.metrics.confusion_matrix(y_true, y_pred >= t).ravel()
         re, pr, f1 = performance(y_true, y_pred >= t)
-        measures.append([tn, fp, fn, tp, re, pr, f1])
 
-    return measures
+        print('{:.2f}\t{:d}\t{:d}\t{:d}\t{:d}\t{:.3f}\t{:.3f}\t{:.3f}'.format(
+            t,
+            tn, fp, fn, tp,
+            re, pr, f1))
