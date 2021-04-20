@@ -1,11 +1,10 @@
 import tensorflow as tf
 
-import matplotlib.pyplot as plt
-
 from . import data_handler
 
 def project(raw_data, tf_model):
     import umap.umap_ as umap
+    import matplotlib.pyplot as plt
 
     # read windows
     x, y, p = data_handler.read_windows(
