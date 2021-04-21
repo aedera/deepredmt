@@ -22,7 +22,7 @@ Institute for Signals, Systems and Computational Intelligence,
 
 <figure>
   <p align="center">
-  <img src=fig/model-architecture.png alt="Deepred-mt" height="400" style="vertical-align:middle"/>
+  <img src=fig/model-architecture.png alt="Deepred-mt" width="940" style="vertical-align:middle"/>
   </p>
 
   <figcaption> Architecture of Deepred-mt.  </figcaption> </figure>
