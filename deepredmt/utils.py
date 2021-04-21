@@ -90,7 +90,7 @@ class DataGenerator(tf.keras.utils.Sequence):
                                                  tf.equal(X, _NT2ID['e']))
 
                 # replace all esites by cytidines
-                new_X = tf.where(esites_mask, _NT2ID['C'], X)
+                edited_X = tf.where(esites_mask, _NT2ID['C'], X)
 
                 # replace sampled esites
                 if self.data_augmentation:
@@ -101,9 +101,9 @@ class DataGenerator(tf.keras.utils.Sequence):
                         sample_mask = tf.greater(random_mask, cutoff)
                         sampled_esites = tf.math.logical_and(sample_mask, esites_mask)
 
-                        new_X = tf.where(sampled_esites, _NT2ID['T'], new_X)
+                        edited_X = tf.where(sampled_esites, _NT2ID['T'], edited_X)
 
-                return new_X
+                return edited_X
 
         def occlude_random(self, X, maxlen=0.7):
                 mask = tf.random.uniform(X.shape)
@@ -184,7 +184,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 # occlude target positions
                 #if self.target_occlusion:
-                if tf.random.uniform((1,))[0] > 0.9:
+                if tf.random.uniform((1,))[0] > 0.5:
                         X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
 
                 # convert windows into one-hot representations

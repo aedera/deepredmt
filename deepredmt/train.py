@@ -16,8 +16,7 @@ np.random.seed(seed_value)
 tf.random.set_seed(seed_value)
 
 from . import utils
-from . import models3
-from .models3 import Deepredmt
+from .models import Deepredmt
 
 class WeightCheckpoint(tf.keras.callbacks.Callback):
         def __init__(self):
