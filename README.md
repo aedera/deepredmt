@@ -8,7 +8,7 @@ convolutional auto-encoder from the sequence.
 Source code and instructions are provided for reproducibility of the
 main results of "Deepred-Mt: Deep Representation Learning for
 Predicting C-to-U RNA Editing in Plant Mitochondria," by A. A. Edera,
-D. H. Milone, I. Small, M. V. Sanchez-Puerta (under review). Research
+I. Small, D. H. Milone, M. V. Sanchez-Puerta (under review). Research
 Institute for Signals, Systems and Computational Intelligence,
 [sinc(i)](https://sinc.unl.edu.ar/).
 
