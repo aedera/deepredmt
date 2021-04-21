@@ -89,26 +89,23 @@ encoded as integers.
     win_len = 20
     seqs = read_fasta(fin)
 
-    nt2id = _NT2ID.copy()
-    nt2id['E'] = nt2id['C'] # replace esites for cytidines
-
     # wins is a dict
     # key: sequence name ! position, and window
     # value: nucleotide window where nucleotides are encoded by integers
     wins = {}
     for seqname, seq in seqs.items():
         lseq = list(seq)
-        lseq = [nt2id[nt.upper()] for nt in lseq]
+        lseq = [nt.upper() for nt in lseq] # uppercase
 
         for i, t in enumerate(lseq):
-            if t == nt2id['C']:
+            if t == 'C' or t == 'E': # cytidine or esite
                 pos = i - win_len
                 pos = 0 if pos < 0 else pos
                 lwin = lseq[pos:i-1] # left
                 rwin = lseq[i+1:i+1+win_len] # right
 
-                lpad = [nt2id['N'] for _ in range(win_len - len(lwin))]
-                rpad = [nt2id['N'] for _ in range(win_len - len(rwin))]
+                lpad = ['N' for _ in range(win_len - len(lwin))]
+                rpad = ['N' for _ in range(win_len - len(rwin))]
 
                 win = lpad + lwin + [t] + rwin + rpad
                 #win = leftpad + leftwin + [nt] + rightwin + rightpad

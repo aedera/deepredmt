@@ -13,6 +13,9 @@ _NT2ID = {
     'e': 5
 }
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # no tf warnings
+
 from .train import fit
 from .predict import predict
 from .predict import predict_from_fasta

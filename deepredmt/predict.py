@@ -1,6 +1,10 @@
+import sys
+import os
+
+import sklearn.metrics
+
 import tensorflow as tf
 import numpy as np
-import sklearn.metrics
 
 from . import data_handler as dh
 from . import _NT2ID # nucleotide 2 index
@@ -21,14 +25,23 @@ def predict(fin, tf_model, batch_size=512):
 
 def predict_from_fasta(fasin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
-    wins = dh.extract_wins_from_fasta(fasin)
+    raw_wins = dh.extract_wins_from_fasta(fasin)
+
+    # encode nucleotide as integer
+    nt2id = _NT2ID.copy()
+    nt2id['E'] = nt2id['C'] # replace esites for cytidines
+    wins = {}
+    for k, w in raw_wins.items():
+        wins[k] = [nt2id[n] for n in w]
+
+    # encode windows as one-hot vectors
     x = np.asarray(list(wins.values()))
     x = tf.one_hot(x, depth=4)
 
     model = tf.keras.models.load_model(tf_model, compile='False')
     preds = model.predict(x, batch_size=batch_size)[1]
 
-    return list(wins.keys()), preds
+    return raw_wins, preds
 
 def performance(y_true, y_pred):
     re = sklearn.metrics.recall_score(y_true, y_pred) #, average='micro')
