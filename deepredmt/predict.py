@@ -2,22 +2,33 @@ import tensorflow as tf
 import numpy as np
 import sklearn.metrics
 
-from . import data_handler
+from . import data_handler as dh
 from . import _NT2ID # nucleotide 2 index
 
 def predict(fin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
-    x = data_handler.read_windows(fin,
-                                  read_labels=False,
-                                  read_edexts=False)[0]
+    x = dh.read_windows(fin,
+                        read_labels=False,
+                        read_edexts=False)[0]
     x = tf.one_hot(x, depth=4)
 
     model = tf.keras.models.load_model(tf_model, compile='False')
     preds = model.predict(x, batch_size=batch_size)
 
     return preds
+
+def predict_from_fasta(fasin, tf_model, batch_size=512):
+    # annotated editing sites as thymidines
+    wins = dh.extract_wins_from_fasta(fasin)
+    x = np.asarray(list(wins.values()))
+    x = tf.one_hot(x, depth=4)
+
+    model = tf.keras.models.load_model(tf_model, compile='False')
+    preds = model.predict(x, batch_size=batch_size)[1]
+
+    return list(wins.keys()), preds
 
 def performance(y_true, y_pred):
     re = sklearn.metrics.recall_score(y_true, y_pred) #, average='micro')
@@ -30,9 +41,9 @@ def pr_curve(fin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
-    x, y_true = data_handler.read_windows(fin,
-                                          read_labels=True,
-                                          read_edexts=False)
+    x, y_true = dh.read_windows(fin,
+                                read_labels=True,
+                                read_edexts=False)
     x = tf.one_hot(x, depth=4)
     model = tf.keras.models.load_model(tf_model, compile='False')
     y_pred = model.predict(x, batch_size=batch_size)[1]

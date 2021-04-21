@@ -59,3 +59,61 @@ def train_valid_split(wins, percentage=.8, seed=1234):
     valid_idxs = idxs[thr:]
 
     return [wins[i] for i in train_idxs], [wins[i] for i in valid_idxs]
+
+
+def read_fasta(fin):
+    """Read a fasta file"""
+    import re
+
+    descline = re.compile('^>')
+
+    seqs = {}
+    with open(fin) as f:
+        for a in f:
+            b = a.strip()
+
+            if descline.match(b):
+                # with offset to remove the leading '>'
+                seqname = b[1:]
+                seqs[seqname] = ""
+            else:
+                seqs[seqname] += b
+
+    return seqs
+
+
+def extract_wins_from_fasta(fin):
+    """Extract nucleotide windows from an input fasta file. Nucleotides are
+encoded as integers.
+    """
+    win_len = 20
+    seqs = read_fasta(fin)
+
+    nt2id = _NT2ID.copy()
+    nt2id['E'] = nt2id['C'] # replace esites for cytidines
+
+    # wins is a dict
+    # key: sequence name ! position, and window
+    # value: nucleotide window where nucleotides are encoded by integers
+    wins = {}
+    for seqname, seq in seqs.items():
+        lseq = list(seq)
+        lseq = [nt2id[nt.upper()] for nt in lseq]
+
+        for i, t in enumerate(lseq):
+            if t == nt2id['C']:
+                pos = i - win_len
+                pos = 0 if pos < 0 else pos
+                lwin = lseq[pos:i-1] # left
+                rwin = lseq[i+1:i+1+win_len] # right
+
+                lpad = [nt2id['N'] for _ in range(win_len - len(lwin))]
+                rpad = [nt2id['N'] for _ in range(win_len - len(rwin))]
+
+                win = lpad + lwin + [t] + rwin + rpad
+                #win = leftpad + leftwin + [nt] + rightwin + rightpad
+
+                key = '{}!{}'.format(seqname, i + 1)
+                wins[key] = win
+
+    return wins

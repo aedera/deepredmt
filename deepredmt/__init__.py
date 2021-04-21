@@ -15,5 +15,6 @@ _NT2ID = {
 
 from .train import fit
 from .predict import predict
+from .predict import predict_from_fasta
 from .predict import pr_curve
 from .project import project
