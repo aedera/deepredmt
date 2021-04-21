@@ -243,6 +243,7 @@ class Deepredmt(tf.keras.Model):
                               tf.keras.metrics.MeanSquaredError()
                           ],
                       },
+                      loss_weights = [0.5, 1, 1],
                       #run_eagerly=True,
         )
 

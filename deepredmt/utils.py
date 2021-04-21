@@ -105,10 +105,10 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 return edited_X
 
-        def occlude_random(self, X, maxlen=0.7):
+        def occlude_random(self, X, cutoff=0.7):
                 mask = tf.random.uniform(X.shape)
 
-                return tf.where(mask > maxlen, X, -1)
+                return tf.where(mask > cutoff, X, -1)
 
         def occlude_block(self, X, maxlen=10):
                 """
@@ -163,18 +163,16 @@ class DataGenerator(tf.keras.utils.Sequence):
         def _occlude(self, X):
                 if self.occlusion:
                         if tf.random.uniform((1,))[0] > 0.5:
-                                X_occ = self.occlude_block(X)
-                                X_occ = self.occlude_block(X_occ)
-                        else:
-                                X_occ = self.occlude_random(X)
+                                if tf.random.uniform((1,))[0] > 0.5:
+                                        X = self.occlude_block(X)
+                                else:
+                                        X = self.occlude_random(X, cutoff=.5)
 
                         # occlude target positions
                         if tf.random.uniform((1,))[0] > 0.5:
-                                X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
-                else:
-                        X_occ = X
+                                X = tf.where(self.target_mask, X, _NT2ID['N'])
 
-                return X_occ
+                return X
 
         def __getitem__(self, idx):
                 from_rng = self.get_batch_size() * idx
