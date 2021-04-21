@@ -49,7 +49,7 @@ def pr_curve(fin, tf_model, batch_size=512):
     y_pred = model.predict(x, batch_size=batch_size)[1]
     y_pred = y_pred
 
-    for t in np.arange(0., 1., .01):
+    for t in np.arange(0., 1.01, .01):
         tn, fp, fn, tp = sklearn.metrics.confusion_matrix(y_true, y_pred >= t).ravel()
         re, pr, f1 = performance(y_true, y_pred >= t)
 
