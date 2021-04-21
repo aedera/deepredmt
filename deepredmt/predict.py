@@ -56,7 +56,7 @@ def pr_curve(fin, tf_model, batch_size=512):
         tn, fp, fn, tp = sklearn.metrics.confusion_matrix(y_true, y_pred >= t).ravel()
         re, pr, f1 = performance(y_true, y_pred >= t)
 
-        print('{:.2f}\t{:d}\t{:d}\t{:d}\t{:d}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}'.format(
+        print('{:.2f}\t{:d}\t{:d}\t{:d}\t{:d}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.2f}'.format(
             t,
             tn, fp, fn, tp,
             re, pr, f1, auc))
