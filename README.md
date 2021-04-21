@@ -1,9 +1,11 @@
-# Deepredmt
+# Deepred-Mt
 
 Given an RNA sequence consisting of a central cytidine flanked by 20
 nucleotides on each side, Deepred-Mt scores if the central cytidine is
 edited. This score is obtained from the motifs extracted by a deep
-convolutional auto-encoder from the sequence.
+convolutional auto-encoder from the sequence. Deepred-Mt was
+especially constructed to predict editing sites for angiosperm
+mitochondrial RNA.
 
 Source code and instructions are provided for reproducibility of the
 main results of "Deepred-Mt: Deep Representation Learning for
