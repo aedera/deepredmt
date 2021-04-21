@@ -5,7 +5,7 @@ machine able to bind organellar RNA molecules post-transcriptionally
 to convert cytidines to uridines (C-to-U) at highly specific positions
 called editing sites. RNA editing is governed by cis elements that
 remain recalcitrant to characterization, limiting further advances on
-editosome binding prediction. 
+editosome binding prediction.
 
 Deepred-Mt is a novel method to predict editing editing for angiosperm
 mitochondrial RNA. Given an RNA sequence consisting of a central
@@ -19,6 +19,15 @@ Predicting C-to-U RNA Editing in Plant Mitochondria," by A. A. Edera,
 I. Small, D. H. Milone, M. V. Sanchez-Puerta (under review). Research
 Institute for Signals, Systems and Computational Intelligence,
 [sinc(i)](https://sinc.unl.edu.ar/).
+
+<figure>
+  <p align="center">
+  <img src=fig/model-architecture.png alt="Deepred-mt" height="400" style="vertical-align:middle"/>
+  </p>
+
+  <figcaption> Architecture of Deepred-mt.  </figcaption> </figure>
+</figure>
+
 
 ## Datasets
 
