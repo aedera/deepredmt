@@ -159,6 +159,23 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 return tf.where(occ_mask, -1, X)
 
+
+        def _occlude(self, X):
+                if self.occlusion:
+                        if tf.random.uniform((1,))[0] > 0.5:
+                                X_occ = self.occlude_block(X)
+                                X_occ = self.occlude_block(X_occ)
+                        else:
+                                X_occ = self.occlude_random(X)
+
+                        # occlude target positions
+                        if tf.random.uniform((1,))[0] > 0.5:
+                                X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
+                else:
+                        X_occ = X
+
+                return X_occ
+
         def __getitem__(self, idx):
                 from_rng = self.get_batch_size() * idx
                 to_rng = self.get_batch_size() * (idx+1)
@@ -173,19 +190,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 # edit and occlude windows
                 X = self._edit_wins(X)
-                if self.occlusion:
-                        if tf.random.uniform((1,))[0] > 0.5:
-                                X_occ = self.occlude_block(X)
-                                X_occ = self.occlude_block(X_occ)
-                        else:
-                                X_occ = self.occlude_random(X)
-                else:
-                        X_occ = X
-
-                # occlude target positions
-                #if self.target_occlusion:
-                if tf.random.uniform((1,))[0] > 0.5:
-                        X_occ = tf.where(self.target_mask, X, _NT2ID['N'])
+                X_occ = self._occlude(X)
 
                 # convert windows into one-hot representations
                 X = tf.one_hot(tf.cast(X, tf.int32), depth=4)
