@@ -69,7 +69,16 @@ are editing sites based on their surrounding nucleotides.
   windows were extracted from 21 mitochondrial genomes of diverse angiosperms,
   whose C-to-U editing sites were identified by using deep RNA sequencing
   data. Identified editing sites are indicated by a fifth nucleotide:
-  'E'. Each data entry is described by the following fields:
+  'E'.
+
+* [_Lophophytum mirabile_ data](./datasets/lopho-data.tsv.gz). These data were used
+  to evaluate the predictive performance of Deepred-Mt on unseen data, and was
+  collected from the mitochondrial protein-coding sequences of a flowering
+  plant called _Lophophytum mirabile_. The C-to-U editing sites of these
+  sequences were [previously identified](https://doi.org/10.1111/nph.16926)
+  with deep RNA sequencing.
+
+Entries in both datasets are composed of the following fields:
 
   * Window ID.
   * Homolog ID.
@@ -84,5 +93,4 @@ are editing sites based on their surrounding nucleotides.
     aligned in that position.
   * Window label: 0/1.
   * PREP-Mt score.
-
-* [Lophophytum mirabile](https://foo.com)
+  * PREPACT score (only for _Lophophytum mirabile_).
