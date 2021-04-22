@@ -43,11 +43,11 @@ After installing, you can execute Deepred-Mt on the command line to predict
 editing sites from a desired fasta file:
 
 ```bash
-deepredmt predict fasta/nad2.fas
+deepredmt fasta/lopho.fas
 ```
 
-This command searches the fasta file for all the cytidines and then predicts
-if they are editing sites based on their surrounding nucleotides.
+This searches the fasta file for all the cytidines and then predicts if they
+are editing sites based on their surrounding nucleotides.
 
 ### Notebooks
 
