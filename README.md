@@ -67,8 +67,9 @@ are editing sites based on their surrounding nucleotides.
   nucleotide windows whose center positions are either cytidines or C-to-U
   editing sites, as well as thymidines homologous to these editing sites. The
   windows were extracted from 21 mitochondrial genomes of diverse angiosperms,
-  and the C-to-U editing sites were identified by using deep RNA sequencing
-  data. Each data entry is described by the following fields:
+  whose C-to-U editing sites were identified by using deep RNA sequencing
+  data. Identified editing sites are indicated by a fifth nucleotide:
+  'E'. Each data entry is described by the following fields:
 
   * Window ID.
   * Homolog ID.
