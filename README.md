@@ -7,7 +7,7 @@ sites. RNA editing is governed by cis elements that remain recalcitrant to
 characterization, limiting further advances on genetic engineering techniques
 for RNA manipulation.
 
-Deepred-Mt is a novel method to predict editing sites in angiosperm
+Deepred-Mt is a novel method to predict C-to-U editing sites in angiosperm
 mitochondrial RNA. Given an RNA sequence consisting of a central cytidine
 flanked by 20 nucleotides on each side, Deepred-Mt scores if the central
 cytidine is edited. This score is computed using motifs extracted by a
