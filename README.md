@@ -73,12 +73,11 @@ are edited based on their surrounding nucleotides.
   deep RNA sequencing data.
 
 * [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). Dataset used to
-  evaluate the predictive performance of Deepred-Mt on unseen data. It was
-  collected from the mitochondrial protein-coding sequences of a flowering
-  plant called _Lophophytum mirabile_. The C-to-U editing sites of these
-  sequences were experimentally identifyed in a
-  [previous study](https://doi.org/10.1111/nph.16926) by using deep RNA
-  sequencing.
+  evaluate the predictive performance of Deepred-Mt. It was collected from the
+  mitochondrial protein-coding sequences of a flowering plant called
+  _Lophophytum mirabile_, whose C-to-U editing sites were experimentally
+  identified in a [previous study](https://doi.org/10.1111/nph.16926) by using
+  deep RNA sequencing.
 
 Entries in both datasets are composed of the following fields:
 
