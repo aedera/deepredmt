@@ -7,19 +7,12 @@ import tensorflow as tf
 import numpy as np
 
 from .predict import predict_from_fasta
+from .predict import predict
 
-def deepredmt():
-    if len(sys.argv) < 2:
-        print('Fasta file not detected. Please indicate a fasta file path.')
-        return sys.exit(1)
+from . import MODEL_FIN # path to trained model
 
-    fasin = sys.argv[1]
-
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    model_dir = os.path.join(current_path, './model')
-    model_fin = os.path.join(model_dir, '210421-1205.tf')
-
-    wins, preds = predict_from_fasta(fasin, model_fin)
+def _predict_from_fasta(fasin):
+    wins, preds = predict_from_fasta(fasin, MODEL_FIN)
 
     for i, k in enumerate(wins):
         lwin = wins[k][0:20]
@@ -29,3 +22,19 @@ def deepredmt():
             k,
             ''.join(lwin), targ, ''.join(rwin),
             preds[i][0]))
+
+def deepredmt():
+    if len(sys.argv) < 2:
+        print('Fasta file not detected. Please indicate an input fasta file or a file containing 41-bp nucleotide windows.')
+        return sys.exit(1)
+
+    fin = sys.argv[1]
+
+    # check if the input file is a fasta file or a file containing windows
+    fline = open(fin).readline().rstrip()[0]
+    if fline == '>':
+        _predict_from_fasta(fin)
+    elif fline != ' ':
+        np.savetxt(sys.stdout.buffer, predict(fin, MODEL_FIN)[1], fmt="%.2f")
+    else:
+        print('Input file is not recognizable')

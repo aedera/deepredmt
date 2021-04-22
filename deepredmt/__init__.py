@@ -21,3 +21,8 @@ from .predict import predict
 from .predict import predict_from_fasta
 from .predict import pr_curve
 from .project import project
+
+CANDIDATE_MODEL = '210421-1205.tf'
+current_path = os.path.dirname(os.path.realpath(__file__))
+model_dir = os.path.join(current_path, './model')
+MODEL_FIN = os.path.join(model_dir, CANDIDATE_MODEL)
