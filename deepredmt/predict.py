@@ -49,6 +49,6 @@ def predict_from_fasta(fasin, tf_model, batch_size=512):
     x = tf.one_hot(x, depth=4)
 
     model = tf.keras.models.load_model(tf_model, compile='False')
-    preds = model.predict(x, batch_size=batch_size)[1]
+    preds = model.predict(x, batch_size=batch_size)
 
     return raw_wins, preds
