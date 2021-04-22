@@ -55,18 +55,34 @@ are editing sites based on their surrounding nucleotides.
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
   sites in a fasta file.
 
-* [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
+*
+  [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
   reproduces the results obtained when comparing the predictive prediction of
-  Deepred-Mt an [PREP-Mt](http://prep.unl.edu/) on the mitochondrial
-  protein-coding sequences of 21 species.
+  Deepred-Mt an [PREP-Mt](http://prep.unl.edu/) on the protein-coding
+  sequences of 21 mitochondrial genomes of diverse angiosperms.
 
 ## Datasets
 
-* [Training data](./dataset/training-data.tsv.gz). This data was used to train
-  Deepred-mt. It contains 41-bp nucleotide windows whose center positions are
-  either cytidines or C-to-U editing sites, as well as thymidines homologous
-  to these editing sites. The windows were extracted from 21 mitochondrial
-  genomes of diverse angiosperms, and the C-to-U editing sites were identified
-  by using deep RNA sequencing data.
+* [Training data](./datasets/training-data.tsv.gz). These data were used to
+  train Deepred-mt, and evaluate its predictive performance. It contains 41-bp
+  nucleotide windows whose center positions are either cytidines or C-to-U
+  editing sites, as well as thymidines homologous to these editing sites. The
+  windows were extracted from 21 mitochondrial genomes of diverse angiosperms,
+  and the C-to-U editing sites were identified by using deep RNA sequencing
+  data. Each data entry is described by the following fields:
+
+  * Window ID.
+  * Homolog ID.
+  * Codon position: first/second/third codon position. Synonymous positions
+    are indicated as a "fourth" codon position.
+  * Upstream region of the nucleotide window.
+  * Central position of the nucleotide window.
+  * Downstream region of the nucleotide window.
+  * Codon of the target position.
+  * Editing extent of the target position: # of paired-end reads showing a T
+    in the central position divided by the total number of paired-end reads
+    aligned in that position.
+  * Window label: 0/1.
+  * PREP-Mt score.
 
 * [Lophophytum mirabile](https://foo.com)
