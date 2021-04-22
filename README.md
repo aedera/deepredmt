@@ -56,9 +56,9 @@ are edited based on their surrounding nucleotides.
 
 *
   [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
-  reproduces results of the manuscript obtained in which the predictive
-  prediction of Deepred-Mt is compared with that of a state-of-the art method
-  for predicting editing sites.
+  reproduces results of the manuscript in which the predictive prediction of
+  Deepred-Mt is compared with that of a state-of-the art method for predicting
+  editing sites.
 
 * [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
   shows how to train Deepred-Mt from scratch.
