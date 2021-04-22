@@ -9,6 +9,10 @@ import numpy as np
 from .predict import predict_from_fasta
 
 def deepredmt():
+    if len(sys.argv) < 2:
+        print('Fasta file not detected. Please indicate a fasta file path.')
+        return sys.exit(1)
+
     fasin = sys.argv[1]
 
     current_path = os.path.dirname(os.path.realpath(__file__))

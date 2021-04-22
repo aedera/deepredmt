@@ -30,9 +30,18 @@ def predict_from_fasta(fasin, tf_model, batch_size=512):
     # encode nucleotide as integer
     nt2id = _NT2ID.copy()
     nt2id['E'] = nt2id['C'] # replace esites for cytidines
+
     wins = {}
     for k, w in raw_wins.items():
-        wins[k] = [nt2id[n] for n in w]
+        wins[k] = []
+
+        for n in w:
+            if n in nt2id:
+                encoding = nt2id[n]
+            else:
+                # encode unknown nucleotides as 'N'
+                encoding = nt2id['N']
+            wins[k].append(encoding)
 
     # encode windows as one-hot vectors
     x = np.asarray(list(wins.values()))
