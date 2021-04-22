@@ -101,14 +101,13 @@ encoded as integers.
             if t == 'C' or t == 'E': # cytidine or esite
                 pos = i - win_len
                 pos = 0 if pos < 0 else pos
-                lwin = lseq[pos:i-1] # left
+                lwin = lseq[pos:i] # left
                 rwin = lseq[i+1:i+1+win_len] # right
 
                 lpad = ['N' for _ in range(win_len - len(lwin))]
                 rpad = ['N' for _ in range(win_len - len(rwin))]
 
                 win = lpad + lwin + [t] + rwin + rpad
-                #win = leftpad + leftwin + [nt] + rightwin + rightpad
 
                 key = '{}!{}'.format(seqname, i + 1)
                 wins[key] = win

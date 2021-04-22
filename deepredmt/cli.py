@@ -18,6 +18,10 @@ def deepredmt():
     wins, preds = predict_from_fasta(fasin, model_fin)
 
     for i, k in enumerate(wins):
-        print('{}\t{}\t{:.3f}'.format(k,
-                                      ''.join(wins[k]),
-                                      preds[i][0]))
+        lwin = wins[k][0:20]
+        targ = wins[k][20]
+        rwin = wins[k][21:]
+        print('{}\t{}\t{}\t{}\t{:.3f}'.format(
+            k,
+            ''.join(lwin), targ, ''.join(rwin),
+            preds[i][0]))
