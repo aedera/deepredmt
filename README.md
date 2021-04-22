@@ -42,7 +42,7 @@ After installing, you can execute Deepred-Mt on the command line to predict
 editing sites from a desired fasta file:
 
 ```bash
-deepredmt fasta/lopho.fas
+deepredmt data/lopho.fas
 ```
 
 This searches the fasta file for all the cytidines and then predicts if they
@@ -62,7 +62,7 @@ are editing sites based on their surrounding nucleotides.
 
 ## Datasets
 
-* [Training data](./datasets/training-data.tsv.gz). These data were used to
+* [Training data](./data/training-data.tsv.gz). These data were used to
   train Deepred-mt, and evaluate its predictive performance. It contains 41-bp
   nucleotide windows whose center positions are either cytidines or C-to-U
   editing sites, as well as thymidines homologous to these editing sites. The
@@ -71,7 +71,7 @@ are editing sites based on their surrounding nucleotides.
   data. Identified editing sites are indicated by a fifth nucleotide:
   'E'.
 
-* [_Lophophytum mirabile_ data](./datasets/lopho-data.tsv.gz). These data were used
+* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). These data were used
   to evaluate the predictive performance of Deepred-Mt on unseen data, and was
   collected from the mitochondrial protein-coding sequences of a flowering
   plant called _Lophophytum mirabile_. The C-to-U editing sites of these
