@@ -19,7 +19,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # no tf warnings
 from .train import fit
 from .predict import predict
 from .predict import predict_from_fasta
-from .predict import pr_curve
 from .project import project
 
 CANDIDATE_MODEL = '210421-1205.tf'
