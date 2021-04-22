@@ -38,15 +38,15 @@ pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
 
 ### Command line
 
-After installing, you can execute Deepred-Mt on the command line to predict
-editing sites from a desired fasta file:
+After installing, you can use Deepred-Mt on the command line to predict
+C-to-U editing sites for a desired fasta file:
 
 ```bash
 deepredmt data/lopho.fas
 ```
 
 This searches the fasta file for all the cytidines and then predicts if they
-are editing sites based on their surrounding nucleotides.
+are edited based on their surrounding nucleotides.
 
 ### Notebooks
 
@@ -54,9 +54,11 @@ are editing sites based on their surrounding nucleotides.
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
   sites in a fasta file.
 
-* [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
-  reproduces the results of the manuscript obtained when comparing the predictive prediction of
-  Deepred-Mt with that of a state-of-the art method for predicting editing sites.
+*
+  [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
+  reproduces results of the manuscript obtained in which the predictive
+  prediction of Deepred-Mt is compared with that of a state-of-the art method
+  for predicting editing sites.
 
 * [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
   shows how to train Deepred-Mt from scratch.
@@ -66,17 +68,17 @@ are editing sites based on their surrounding nucleotides.
 * [Training data](./data/training-data.tsv.gz). Dataset originally used to
   train Deepred-mt. It contains 41-bp nucleotide windows whose center
   positions are either cytidines or C-to-U editing sites, as well as
-  thymidines homologous to these editing sites. These windows were extracted
-  from 21 mitochondrial genomes of diverse angiosperms, whose C-to-U editing
-  sites were identified by using deep RNA sequencing data. Identified C-to-U
-  editing sites are indicated by a fifth nucleotide: 'E'.
+  thymidines homologous to these editing sites (i.e., data
+  augmentation). C-to-U editing sites were experimentally identified by using
+  deep RNA sequencing data.
 
 * [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). Dataset used to
   evaluate the predictive performance of Deepred-Mt on unseen data. It was
   collected from the mitochondrial protein-coding sequences of a flowering
   plant called _Lophophytum mirabile_. The C-to-U editing sites of these
-  sequences were [previously identified](https://doi.org/10.1111/nph.16926)
-  with deep RNA sequencing.
+  sequences were experimentally identifyed in a
+  [previous study](https://doi.org/10.1111/nph.16926) by using deep RNA
+  sequencing.
 
 Entries in both datasets are composed of the following fields:
 
@@ -93,4 +95,8 @@ Entries in both datasets are composed of the following fields:
     aligned in that position.
   * Window label: 0/1.
   * [PREP-Mt](http://prep.unl.edu/) score.
-  * [PREPACT](http://www.prepact.de/prepact-main.php) score (only for _Lophophytum mirabile_).
+  * [PREPACT](http://www.prepact.de/prepact-main.php) score (only for
+    _Lophophytum mirabile_).
+
+In the nucleotide windows, experimentally identified C-to-U editing sites are
+indicated by a fifth nucleotide: 'E'.
