@@ -44,9 +44,9 @@ def predict_from_fasta(fasin, tf_model, batch_size=512):
     return raw_wins, preds
 
 def performance(y_true, y_pred):
-    re = sklearn.metrics.recall_score(y_true, y_pred) #, average='micro')
-    pr = sklearn.metrics.precision_score(y_true, y_pred) #, average='micro')
-    f1 = sklearn.metrics.f1_score(y_true, y_pred) #, average='micro')
+    re = sklearn.metrics.recall_score(y_true, y_pred)
+    pr = sklearn.metrics.precision_score(y_true, y_pred)
+    f1 = sklearn.metrics.f1_score(y_true, y_pred)
 
     return re, pr, f1
 
