@@ -51,11 +51,20 @@ are editing sites based on their surrounding nucleotides.
 
 ### Notebooks
 
-* [Notebook](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
-  showing how to use Deepred-Mt on the command line to predict C-to-U editing
+* [Notebook 1](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
+  shows how to use Deepred-Mt on the command line to predict C-to-U editing
   sites in a fasta file.
+
+* [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
+  reproduces the results obtained when comparing the predictive prediction of
+  Deepred-Mt an [PREP-Mt](http://prep.unl.edu/) on the mitochondrial
+  protein-coding sequences of 21 species.
 
 ## Datasets
 
-* [train](https://foo.com)
+* [training data](./dataset/training-data.tsv.gz). This dataset contains 41-bp
+  nucleotide windows in which the center positions are either cytidines or
+  editing sites, as well as thymidines homologous to these editing sites. The
+  windows were extracted from 21 mitochondrial genomes of angiosperm species,
+  and the editing sites were identified by using deep RNA sequencing data.
 * [Lophophytum mirabile](https://foo.com)
