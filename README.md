@@ -55,26 +55,24 @@ are editing sites based on their surrounding nucleotides.
   sites in a fasta file.
 
 * [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
-  reproduces the results obtained when comparing the predictive prediction of
-  Deepred-Mt an [PREP-Mt](http://prep.unl.edu/) on the protein-coding
-  sequences of 21 mitochondrial genomes of diverse angiosperms.
+  reproduces the results of the manuscript obtained when comparing the predictive prediction of
+  Deepred-Mt with that of a state-of-the art method for predicting editing sites.
 
 * [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
   shows how to train Deepred-Mt from scratch.
 
 ## Datasets
 
-* [Training data](./data/training-data.tsv.gz). These data were used to
-  train Deepred-mt, and evaluate its predictive performance. It contains 41-bp
-  nucleotide windows whose center positions are either cytidines or C-to-U
-  editing sites, as well as thymidines homologous to these editing sites. The
-  windows were extracted from 21 mitochondrial genomes of diverse angiosperms,
-  whose C-to-U editing sites were identified by using deep RNA sequencing
-  data. Identified editing sites are indicated by a fifth nucleotide:
-  'E'.
+* [Training data](./data/training-data.tsv.gz). Dataset originally used to
+  train Deepred-mt. It contains 41-bp nucleotide windows whose center
+  positions are either cytidines or C-to-U editing sites, as well as
+  thymidines homologous to these editing sites. These windows were extracted
+  from 21 mitochondrial genomes of diverse angiosperms, whose C-to-U editing
+  sites were identified by using deep RNA sequencing data. Identified C-to-U
+  editing sites are indicated by a fifth nucleotide: 'E'.
 
-* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). These data were used
-  to evaluate the predictive performance of Deepred-Mt on unseen data, and was
+* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). Dataset used to
+  evaluate the predictive performance of Deepred-Mt on unseen data. It was
   collected from the mitochondrial protein-coding sequences of a flowering
   plant called _Lophophytum mirabile_. The C-to-U editing sites of these
   sequences were [previously identified](https://doi.org/10.1111/nph.16926)
@@ -94,5 +92,5 @@ Entries in both datasets are composed of the following fields:
     in the central position divided by the total number of paired-end reads
     aligned in that position.
   * Window label: 0/1.
-  * PREP-Mt score.
+  * [PREP-Mt](http://prep.unl.edu/) score.
   * [PREPACT](http://www.prepact.de/prepact-main.php) score (only for _Lophophytum mirabile_).
