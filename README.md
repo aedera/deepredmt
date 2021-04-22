@@ -54,11 +54,13 @@ are editing sites based on their surrounding nucleotides.
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
   sites in a fasta file.
 
-*
-  [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
+* [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
   reproduces the results obtained when comparing the predictive prediction of
   Deepred-Mt an [PREP-Mt](http://prep.unl.edu/) on the protein-coding
   sequences of 21 mitochondrial genomes of diverse angiosperms.
+
+* [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
+  shows how to train Deepred-Mt from scratch.
 
 ## Datasets
 
