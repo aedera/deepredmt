@@ -51,6 +51,10 @@ are editing sites based on their surrounding nucleotides.
 
 ### Notebooks
 
+* [Notebook](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
+  showing how to use Deepred-Mt on the command line to predict C-to-U editing
+  sites in a fasta file.
+
 ## Datasets
 
 * [train](https://foo.com)
