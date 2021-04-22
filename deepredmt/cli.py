@@ -35,6 +35,6 @@ def deepredmt():
     if fline == '>':
         _predict_from_fasta(fin)
     elif fline != ' ':
-        np.savetxt(sys.stdout.buffer, predict(fin, MODEL_FIN)[1], fmt="%.2f")
+        np.savetxt(sys.stdout.buffer, predict(fin, MODEL_FIN), fmt="%.2f")
     else:
         print('Input file is not recognizable')

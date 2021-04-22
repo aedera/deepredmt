@@ -16,13 +16,13 @@ def predict(fin, tf_model, batch_size=512):
     x = dh.read_windows(fin,
                         read_labels=False,
                         read_edexts=False)[0]
-    x = tf.one_hot(x, depth=4)
 
+    x = tf.one_hot(x, depth=4)
     model = tf.keras.models.load_model(tf_model, compile='False')
-    preds = model.predict(x, batch_size=batch_size)
+    x_rec, y_pred, _ = model.predict(x, batch_size=batch_size)
 
     # return label predictions
-    return preds[1]
+    return y_pred
 
 def predict_from_fasta(fasin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
@@ -49,6 +49,6 @@ def predict_from_fasta(fasin, tf_model, batch_size=512):
     x = tf.one_hot(x, depth=4)
 
     model = tf.keras.models.load_model(tf_model, compile='False')
-    preds = model.predict(x, batch_size=batch_size)
+    x_rec, y_pred, _ = model.predict(x, batch_size=batch_size)
 
-    return raw_wins, preds
+    return raw_wins, y_pred
