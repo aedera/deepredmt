@@ -62,9 +62,11 @@ are editing sites based on their surrounding nucleotides.
 
 ## Datasets
 
-* [training data](./dataset/training-data.tsv.gz). This dataset contains 41-bp
-  nucleotide windows in which the center positions are either cytidines or
-  editing sites, as well as thymidines homologous to these editing sites. The
-  windows were extracted from 21 mitochondrial genomes of angiosperm species,
-  and the editing sites were identified by using deep RNA sequencing data.
+* [Training data](./dataset/training-data.tsv.gz). This data was used to train
+  Deepred-mt. It contains 41-bp nucleotide windows whose center positions are
+  either cytidines or C-to-U editing sites, as well as thymidines homologous
+  to these editing sites. The windows were extracted from 21 mitochondrial
+  genomes of diverse angiosperms, and the C-to-U editing sites were identified
+  by using deep RNA sequencing data.
+
 * [Lophophytum mirabile](https://foo.com)
