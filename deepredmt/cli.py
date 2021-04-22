@@ -12,7 +12,7 @@ def deepredmt():
     fasin = sys.argv[1]
 
     current_path = os.path.dirname(os.path.realpath(__file__))
-    model_dir = os.path.join(current_path, '../model')
+    model_dir = os.path.join(current_path, './model')
     model_fin = os.path.join(model_dir, '210421-1205.tf')
 
     wins, preds = predict_from_fasta(fasin, model_fin)
