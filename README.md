@@ -25,17 +25,33 @@ Institute for Signals, Systems and Computational Intelligence,
   <img src=fig/model-architecture.png alt="Deepred-mt" width="940" style="vertical-align:middle"/>
   </p>
 
-  <figcaption>Architecture of Deepred-mt.</figcaption>
+  <figcaption>Architecture of Deepred-Mt.</figcaption>
 </figure>
 
-
-## Datasets
-
-* [train](https://foo.com)
-* [Lophophytum mirabile](https://foo.com)
 
 ## Installation
 
 ```bash
 pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
 ```
+
+## Example usage
+
+### Command line
+
+After installing, you can execute Deepred-Mt on the command line to predict
+editing sites from a desired fasta file:
+
+```bash
+deepredmt predict fasta/nad2.fas
+```
+
+This command searches the fasta file for all the cytidines and then predicts
+if they are editing sites based on their surrounding nucleotides.
+
+### Notebooks
+
+## Datasets
+
+* [train](https://foo.com)
+* [Lophophytum mirabile](https://foo.com)
