@@ -93,4 +93,4 @@ Entries in both datasets are composed of the following fields:
     aligned in that position.
   * Window label: 0/1.
   * PREP-Mt score.
-  * PREPACT score (only for _Lophophytum mirabile_).
+  * [PREPACT](http://www.prepact.de/prepact-main.php) score (only for _Lophophytum mirabile_).
