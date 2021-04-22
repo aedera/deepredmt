@@ -21,7 +21,8 @@ def predict(fin, tf_model, batch_size=512):
     model = tf.keras.models.load_model(tf_model, compile='False')
     preds = model.predict(x, batch_size=batch_size)
 
-    return preds
+    # return label predictions
+    return preds[1]
 
 def predict_from_fasta(fasin, tf_model, batch_size=512):
     # annotated editing sites as thymidines
