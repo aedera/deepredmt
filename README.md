@@ -86,5 +86,5 @@ are edited based on their surrounding nucleotides.
   identified in a [previous study](https://doi.org/10.1111/nph.16926) by using
   deep RNA sequencing.
 
-Look at this [README](./data/README.md) file for more information about these
+Look at this [README](./data) file for more information about these
 datasets.
