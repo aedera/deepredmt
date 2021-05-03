@@ -70,7 +70,14 @@ are edited based on their surrounding nucleotides.
   positions are either cytidines or C-to-U editing sites, as well as
   thymidines homologous to these editing sites (i.e., data
   augmentation). C-to-U editing sites were experimentally identified by using
-  deep RNA sequencing data.
+  deep RNA sequencing data. Nucleotide windows are labeled as either 0 or 1
+  based on the nucleotides in the central positions.
+
+* [Control data](./data/control-data.tsv.gz). This dataset was constructed
+  from the training dataset by injecting the fake editing signal "GGCG" in the
+  downstream regions of the nucleotide windows labeled as 1. Each time this
+  fake signal was injected, one of its four nucleotides was mutated randomly
+  with certain probability.
 
 * [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). Dataset used to
   evaluate the predictive performance of Deepred-Mt. It was collected from the
@@ -79,7 +86,7 @@ are edited based on their surrounding nucleotides.
   identified in a [previous study](https://doi.org/10.1111/nph.16926) by using
   deep RNA sequencing.
 
-Entries in both datasets are composed of the following fields:
+Entries in above datasets are composed of the following fields:
 
   * Window ID.
   * Homolog ID.
