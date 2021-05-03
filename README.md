@@ -24,7 +24,7 @@ and Computational Intelligence, [sinc(i)](https://sinc.unl.edu.ar/).
   <img src=fig/model-architecture.png alt="Deepred-mt" width="940" style="vertical-align:middle"/>
   </p>
 
-  <figcaption>Architecture of Deepred-Mt.</figcaption>
+  <figcaption>Architecture of Deepred-Mt. </figcaption>
 </figure>
 
 
