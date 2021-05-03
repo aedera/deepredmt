@@ -73,7 +73,6 @@ def get_callbacks(datetime_tag):
 
 def fit(fin,
         augmentation=True,
-        label_smoothing=True,
         num_hidden_units=5,
         batch_size=16,
         epochs=100,
