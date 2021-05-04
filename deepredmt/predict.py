@@ -1,8 +1,6 @@
 import sys
 import os
 
-import sklearn.metrics
-
 import tensorflow as tf
 import numpy as np
 
