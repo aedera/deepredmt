@@ -76,7 +76,8 @@ def fit(fin,
         num_hidden_units=5,
         batch_size=16,
         epochs=100,
-        training_set_size=.8):
+        training_set_size=.8,
+        modelname=None):
         # prepare training and validation datasets
         train_gen, valid_gen = utils.prepare_dataset(
                 fin,
@@ -104,7 +105,10 @@ def fit(fin,
         best_weights = [c for c in callbacks if type(c).__name__ == "WeightCheckpoint"][0].weights
         model.set_weights(best_weights)
 
-        model_file = "./models/" + 'deepredmt/' + datetime_tag + ".tf"
+        if modelname is None:
+                modelname = datetime_tag
+
+        model_file = "./models/" + 'deepredmt/' + modelname + ".tf"
         model.save(model_file)
         print('Best model saved.')
 
