@@ -18,7 +18,7 @@ def predict(fin, tf_model, batch_size=512):
                         read_edexts=False)[0]
 
     x = tf.one_hot(x, depth=4)
-    model = tf.keras.models.load_model(tf_model, compile='False')
+    model = tf.keras.models.load_model(tf_model, compile=False)
     x_rec, y_pred, _ = model.predict(x, batch_size=batch_size)
 
     # return label predictions
