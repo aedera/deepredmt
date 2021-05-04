@@ -7,13 +7,14 @@ import numpy as np
 from . import data_handler as dh
 from . import _NT2ID # nucleotide 2 index
 
-def predict(fin, tf_model, batch_size=512):
+def predict(fin, tf_model, batch_size=512, occlude_target=False):
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
     x = dh.read_windows(fin,
                         read_labels=False,
-                        read_edexts=False)[0]
+                        read_edexts=False,
+                        occlude_target=occlude_target)[0]
 
     x = tf.one_hot(x, depth=4)
     model = tf.keras.models.load_model(tf_model, compile=False)
