@@ -168,9 +168,9 @@ class DataGenerator(tf.keras.utils.Sequence):
                                 else:
                                         X = self.occlude_random(X, cutoff=.5)
 
-                        # occlude target positions
-                        if tf.random.uniform((1,))[0] > 0.5:
-                                X = tf.where(self.target_mask, X, _NT2ID['N'])
+                # occlude target positions
+                if tf.random.uniform((1,))[0] > 0.5:
+                        X = tf.where(self.target_mask, X, _NT2ID['N'])
 
                 return X
 
