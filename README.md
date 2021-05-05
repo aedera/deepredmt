@@ -65,13 +65,17 @@ are edited based on their surrounding nucleotides.
 
 ## Datasets
 
-* [Training data](./data/training-data.tsv.gz). Dataset originally used to
-  train Deepred-mt. It contains 41-bp nucleotide windows whose center
-  positions are either cytidines or C-to-U editing sites, as well as
-  thymidines homologous to these editing sites (i.e., data
-  augmentation). C-to-U editing sites were experimentally identified by using
-  deep RNA sequencing data. Nucleotide windows are labeled as either 0 or 1
-  based on the nucleotides in the central positions.
+* [Training data](./data/training-data.tsv.gz). It contains 41-bp
+  nucleotide windows whose center positions are either unedited (C) or
+  edited (E) cytidines. Nucleotide windows are labeled according to
+  both the nucleotide in their central positions (0/C, 1/E) and
+  editing extents.
+
+* [Task-related sequences](./data/task-related-sequences.tsv.gz). This
+  dataset was constructed by using the task-related augmentation
+  strategy. It contains 41-bp nucleotide windows whose center
+  positions are thymidines homologous to the edited sites in the
+  training data.
 
 * [Control data](./data/control-data.tsv.gz). This dataset was constructed
   from the training dataset by injecting the fake editing signal "GGCG" in the
@@ -79,12 +83,13 @@ are edited based on their surrounding nucleotides.
   fake signal was injected, one of its four nucleotides was mutated randomly
   with certain probability.
 
-* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). Dataset used to
-  evaluate the predictive performance of Deepred-Mt. It was collected from the
-  mitochondrial protein-coding sequences of a flowering plant called
-  _Lophophytum mirabile_, whose C-to-U editing sites were experimentally
-  identified in a [previous study](https://doi.org/10.1111/nph.16926) by using
-  deep RNA sequencing.
+* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). It contains
+  41-bp nucleotide windows obtained from the mitochondrial
+  protein-coding sequences of a flowering plant called _Lophophytum
+  mirabile_. The C-to-U editing sites of these sequences were
+  experimentally identified in a [previous
+  study](https://doi.org/10.1111/nph.16926) by using deep RNA
+  sequencing.
 
 Look at this [README](./data) file for more information on the format of these
 datasets.
