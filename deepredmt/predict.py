@@ -5,8 +5,8 @@ import tensorflow as tf
 import numpy as np
 
 from . import data_handler as dh
+from . import MODEL_FIN
 from . import _NT2ID # nucleotide 2 index
-from . import MODEL_FIN # path to trained model
 
 def get_vector_representations(fin,
                                tf_model=None,
