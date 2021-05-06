@@ -9,10 +9,8 @@ import numpy as np
 from .predict import predict_from_fasta
 from .predict import predict
 
-from . import MODEL_FIN # path to trained model
-
 def _predict_from_fasta(fasin):
-    wins, preds = predict_from_fasta(fasin, MODEL_FIN)
+    wins, preds = predict_from_fasta(fasin)
 
     for i, k in enumerate(wins):
         lwin = wins[k][0:20]
@@ -35,6 +33,6 @@ def deepredmt():
     if fline == '>':
         _predict_from_fasta(fin)
     elif fline != ' ':
-        np.savetxt(sys.stdout.buffer, predict(fin, MODEL_FIN), fmt="%.2f")
+        np.savetxt(sys.stdout.buffer, predict(fin), fmt="%.2f")
     else:
         print('Input file is not recognizable')

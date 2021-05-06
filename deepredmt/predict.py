@@ -6,11 +6,15 @@ import numpy as np
 
 from . import data_handler as dh
 from . import _NT2ID # nucleotide 2 index
+from . import MODEL_FIN # path to trained model
 
 def get_vector_representations(fin,
-                               tf_model,
+                               tf_model=None,
                                batch_size=512,
                                occlude_target=False):
+    if tf_model is None:
+        tf_model = MODEL_FIN
+
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
@@ -30,7 +34,10 @@ def get_vector_representations(fin,
 
     return embeddings
 
-def predict(fin, tf_model, batch_size=512, occlude_target=False):
+def predict(fin, tf_model=None, batch_size=512, occlude_target=False):
+    if tf_model is None:
+        tf_model = MODEL_FIN
+
     # annotated editing sites as thymidines
     _NT2ID['E'] = _NT2ID['C']
     _NT2ID['e'] = _NT2ID['C']
@@ -46,7 +53,10 @@ def predict(fin, tf_model, batch_size=512, occlude_target=False):
     # return label predictions
     return y_pred
 
-def predict_from_fasta(fasin, tf_model, batch_size=512):
+def predict_from_fasta(fasin, tf_model=None, batch_size=512):
+    if tf_model is None:
+        tf_model = MODEL_FIN
+
     # annotated editing sites as thymidines
     raw_wins = dh.extract_wins_from_fasta(fasin)
 
