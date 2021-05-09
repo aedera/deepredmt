@@ -3,7 +3,7 @@
 In land plants, the editosome is a highly sophisticated molecular machine able
 to bind organellar RNA molecules post-transcriptionally. It converts cytidines
 to uridines (C-to-U) at highly specific RNA positions called editing
-sites. RNA editing is governed by cis elements that remain recalcitrant to
+sites. RNA editing is governed by _cis_ elements that remain recalcitrant to
 characterization, limiting further advances on genetic engineering techniques
 for RNA manipulation.
 
@@ -56,7 +56,7 @@ are edited based on their surrounding nucleotides.
 
 *
   [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
-  reproduces results of the manuscript in which the predictive prediction of
+  reproduces results of the manuscript in which the predictive performance of
   Deepred-Mt is compared with that of a state-of-the art method for predicting
   editing sites.
 
@@ -65,17 +65,16 @@ are edited based on their surrounding nucleotides.
 
 ## Datasets
 
-* [Training data](./data/training-data.tsv.gz). It contains 41-bp
-  nucleotide windows whose center positions are either unedited (C) or
-  edited (E) cytidines. Nucleotide windows are labeled according to
-  both the nucleotide in their central positions (0/C, 1/E) and
-  editing extents.
+* [Training data](./data/training-data.tsv.gz). It contains 41-bp nucleotide
+  windows whose center positions are either unedited (C) or edited (E)
+  cytidines. Nucleotide windows are labeled according to both the nucleotide
+  in their central positions (0/C, 1/E) and their corresponding editing
+  extents.
 
-* [Task-related sequences](./data/task-related-sequences.tsv.gz). This
-  dataset was constructed by using the task-related augmentation
-  strategy. It contains 41-bp nucleotide windows whose center
-  positions are thymidines homologous to the edited sites in the
-  training data.
+* [Task-related sequences](./data/task-related-sequences.tsv.gz). This dataset
+  was constructed by using the task-related augmentation strategy proposed in
+  the manuscript. It contains 41-bp nucleotide windows whose center positions
+  are thymidines homologous to one of the editing sites in the training data.
 
 * [Control data](./data/control-data.tsv.gz). This dataset was constructed
   from the training dataset by injecting the fake editing signal "GGCG" in the
