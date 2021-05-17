@@ -42,7 +42,7 @@ After installing, you can use Deepred-Mt on the command line to predict
 C-to-U editing sites for a desired fasta file:
 
 ```bash
-deepredmt data/lopho.fas
+deepredmt data/seqs.fas
 ```
 
 This searches the fasta file for all the cytidines and then predicts if they
@@ -81,14 +81,6 @@ are edited based on their surrounding nucleotides.
   downstream regions of the nucleotide windows labeled as 1. Each time this
   fake signal was injected, one of its four nucleotides was mutated randomly
   with certain probability.
-
-* [_Lophophytum mirabile_ data](./data/lopho-data.tsv.gz). It contains
-  41-bp nucleotide windows obtained from the mitochondrial
-  protein-coding sequences of a flowering plant called _Lophophytum
-  mirabile_. The C-to-U editing sites of these sequences were
-  experimentally identified in a [previous
-  study](https://doi.org/10.1111/nph.16926) by using deep RNA
-  sequencing.
 
 Look at this [README](./data) file for more information on the format of these
 datasets.
