@@ -82,5 +82,5 @@ are edited based on their surrounding nucleotides.
   fake signal was injected, one of its four nucleotides was mutated randomly
   with certain probability.
 
-Look at this [README](./data) file for more information on the format of these
-datasets.
+You can find more information on the format of these datasets in this
+[README](./data) file.
