@@ -17,8 +17,7 @@ fields:
     number of paired-end reads aligned in that position.
   * Field 09. Window label: 0/1.
   * Field 10. [PREP-Mt](http://prep.unl.edu/) score.
-  * Field 11. [PREPACT](http://www.prepact.de/prepact-main.php) score
-    (only for _Lophophytum mirabile_ dataset).
+  * Field 11. [PREPACT](http://www.prepact.de/prepact-main.php) score.
 
 In the nucleotide windows, experimentally identified C-to-U editing
 sites are indicated by a fifth nucleotide: 'E'.
