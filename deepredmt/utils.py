@@ -229,10 +229,15 @@ def prepare_dataset(infile,
         neg_idx = np.where(y == 0)[0]
         pos_idx = np.where(y == 1)[0]
 
-        # generate a train and valid sets
-        neg_train_idx, neg_valid_idx = data_handler.train_valid_split(neg_idx, percentage=training_set_size)
-        pos_train_idx, pos_valid_idx = data_handler.train_valid_split(pos_idx, percentage=training_set_size)
+        # # generate a train and valid sets
+        # neg_train_idx, neg_valid_idx = data_handler.train_valid_split(neg_idx, percentage=training_set_size)
+        # pos_train_idx, pos_valid_idx = data_handler.train_valid_split(pos_idx, percentage=training_set_size)
 
+        # generate train/valid sets
+        neg_train_idx = neg_idx.tolist()
+        neg_valid_idx = np.random.choice(neg_idx, int(len(neg_idx) * (1-training_set_size))).tolist()
+        pos_train_idx = pos_idx.tolist()
+        pos_valid_idx = np.random.choice(pos_idx, int(len(pos_idx) * (1-training_set_size))).tolist()
 
         train_idx = neg_train_idx + pos_train_idx
         valid_idx = neg_valid_idx + pos_valid_idx
