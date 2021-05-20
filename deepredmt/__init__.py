@@ -15,7 +15,7 @@ _NT2ID = {
     'e': 5
 }
 
-CANDIDATE_MODEL = '210421-1205.tf'
+CANDIDATE_MODEL = '210520.tf'
 current_path = os.path.dirname(os.path.realpath(__file__))
 model_dir = os.path.join(current_path, './model')
 global MODEL_FIN
