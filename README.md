@@ -10,8 +10,8 @@ for RNA manipulation.
 Deepred-Mt is a novel method to predict C-to-U editing sites in angiosperm
 mitochondrial RNA. Given an RNA sequence consisting of a central cytidine
 flanked by 20 nucleotides on each side, Deepred-Mt scores if the central
-cytidine is edited. This score is computed using motifs extracted by a
-convolutional approach from the sequence.
+cytidine is edited. This score is computed from the sequence by extracting
+sequence motifs with a convolutional approach.
 
 Source code and instructions are provided for reproducibility of the main
 results of "Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA
@@ -38,8 +38,8 @@ pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
 
 ### Command line
 
-After installing, you can use Deepred-Mt on the command line to predict
-C-to-U editing sites for a desired fasta file:
+After installing, you can run Deepred-Mt on the command line to predict C-to-U
+editing sites for a desired FASTA file:
 
 ```bash
 deepredmt data/seqs.fas
@@ -48,7 +48,14 @@ deepredmt data/seqs.fas
 This searches the fasta file for all the cytidines and then predicts if they
 are edited based on their surrounding nucleotides.
 
-### Notebooks
+In addition, you can also use a plain text file containing nucleotide windows
+of 41-bp as input for predictions:
+
+```bash
+deepredmt data/wins.txt
+```
+
+### Demo notebooks
 
 * [Notebook 1](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
@@ -71,16 +78,18 @@ are edited based on their surrounding nucleotides.
   in their central positions (0/C, 1/E) and their corresponding editing
   extents.
 
-* [Task-related sequences](./data/task-related-sequences.tsv.gz). This dataset
-  was constructed by using the task-related augmentation strategy proposed in
-  the manuscript. It contains 41-bp nucleotide windows whose center positions
-  are thymidines homologous to one of the editing sites in the training data.
+* [Task-related sequences](./data/task-related-sequences.tsv.gz). It contains
+  the sequences derived from the task-related augmentation strategy proposed
+  in the manuscript. These sequences are 41-bp nucleotide windows whose center
+  positions are thymidines homologous to one of the editing sites in the
+  training data.
 
 * [Control data](./data/control-data.tsv.gz). This dataset was constructed
-  from the training dataset by injecting the fake editing signal "GGCG" in the
-  downstream regions of the nucleotide windows labeled as 1. Each time this
-  fake signal was injected, one of its four nucleotides was mutated randomly
-  with certain probability.
+  from the training dataset. The fake editing signal "GGCG" was injected in
+  the downstream regions of the nucleotide windows labeled as 1. Each time
+  this fake signal was injected, one of its four nucleotides was mutated
+  randomly with a probability inversely proportional to the editing extent of
+  the sequence.
 
 You can find more information on the format of these datasets in this
 [README](./data) file.
