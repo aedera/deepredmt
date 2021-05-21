@@ -64,13 +64,22 @@ deepredmt data/wins.txt
 *
   [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
   reproduces results of the manuscript in which the predictive performance of
-  Deepred-Mt is compared with that of a state-of-the art method for predicting
+  Deepred-Mt is compared with those of state-of-the art methods for predicting
   editing sites.
 
 * [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
   shows how to train Deepred-Mt from scratch.
 
-## Datasets
+## Data
+
+For our experiments, we use [FASTA files](./data/fasta-files.tar.gz)
+containing mitochondrial protein-encoding sequences of 21 plant species. These
+files have annotated editing sites, as 'E' nucleotides, which were previously
+identified by using RNAseq data publicly available in the
+[European Nucleotide Archive](https://www.ebi.ac.uk/ena/browser/home).
+
+We use these FASTA files to construct three datasets:
+
 
 * [Training data](./data/training-data.tsv.gz). It contains 41-bp nucleotide
   windows whose center positions are either unedited (C) or edited (E)
