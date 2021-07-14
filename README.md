@@ -27,7 +27,7 @@ Research Institute for Signals, Systems and Computational Intelligence,
   <img src=fig/model-architecture.png alt="Deepred-mt" width="940" style="vertical-align:middle"/>
   </p>
 
-  <figcaption>Architecture of Deepred-Mt. </figcaption>
+  <figcaption>Architecture used to train Deepred-Mt. </figcaption>
 </figure>
 
 
