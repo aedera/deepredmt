@@ -88,7 +88,8 @@ deepredmt data/wins.txt
   shows how to train Deepred-Mt from scratch.
 
 * [Notebook 4](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/04_single_sequence_submission.ipynb)
-  can be used to submit DNA sequences to predict their editing sites with Deepred-Mt.
+  can be used to submit DNA sequences to predict their editing sites with
+  Deepred-Mt on a remote server.
 
 ## Data
 
