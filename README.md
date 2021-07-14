@@ -30,7 +30,24 @@ and Computational Intelligence, [sinc(i)](https://sinc.unl.edu.ar/).
 
 ## Installation
 
+To install Deepred-Mt your computer needs to have installed Python 2.7 (https://www.python.org/), [pip](https://pip.pypa.io/en/stable/),
+and [Git](https://git-scm.com/).
+
+### Basic
+
 ```bash
+pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
+```
+
+### Using Conda
+
+Please note that this installation additionally required having
+[Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/)
+installed in your computer.
+
+```bash
+conda create -n deepredmt python=3.7
+conda activate deepredmt
 pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
 ```
 
