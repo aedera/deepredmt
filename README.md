@@ -10,8 +10,9 @@ for RNA manipulation.
 Deepred-Mt is a novel method to predict C-to-U editing sites in angiosperm
 mitochondrial RNA. Given an RNA sequence consisting of a central cytidine
 flanked by 20 nucleotides on each side, Deepred-Mt scores if the central
-cytidine is edited. This score is computed from the sequence by extracting
-sequence motifs with a convolutional approach.
+cytidine is edited. This score is computed from sequence motifs automatically
+extracted from the RNA sequence with a multi-layer convolutional neural
+network.
 
 Source code and instructions are provided for reproducibility of the main
 results of "_Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA
