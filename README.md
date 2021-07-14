@@ -30,7 +30,7 @@ and Computational Intelligence, [sinc(i)](https://sinc.unl.edu.ar/).
 
 ## Installation
 
-To install Deepred-Mt your computer needs to have installed [Python 2.7](https://www.python.org/), [pip](https://pip.pypa.io/en/stable/),
+To install Deepred-Mt your computer needs to have installed [Python 3.7](https://www.python.org/), [pip](https://pip.pypa.io/en/stable/),
 and [Git](https://git-scm.com/).
 
 ### Basic
