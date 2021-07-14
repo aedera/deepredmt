@@ -14,8 +14,8 @@ cytidine is edited. This score is computed from the sequence by extracting
 sequence motifs with a convolutional approach.
 
 Source code and instructions are provided for reproducibility of the main
-results of "Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA
-Editing in Plant Mitochondria," by A. A. Edera, I. Small, D. H. Milone, and
+results of "_Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA
+Editing in Plant Mitochondria_", by A. A. Edera, I. Small, D. H. Milone, and
 M. V. Sanchez-Puerta.
 
 Research Institute for Signals, Systems and Computational Intelligence,
