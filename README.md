@@ -62,7 +62,7 @@ editing sites for a desired FASTA file:
 deepredmt data/seqs.fas
 ```
 
-This searches the fasta file for all the cytidines and then predicts if they
+This searches the FASTA file for all the cytidines and then predicts if they
 are edited based on their surrounding nucleotides.
 
 In addition, you can also use a plain text file containing nucleotide windows
@@ -76,7 +76,7 @@ deepredmt data/wins.txt
 
 * [Notebook 1](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
-  sites in a fasta file.
+  sites in a FASTA file.
 
 *
   [Notebook 2](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb)
