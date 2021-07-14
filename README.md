@@ -76,6 +76,10 @@ deepredmt data/wins.txt
 
 ### Demo notebooks
 
+The following notebooks reproduce experiments shown in the manuscript and can
+be additionally used to execute your own experiments using Deepred-Mt on
+[Google Colaboratory](https://colab.research.google.com/notebooks/intro.ipynb).
+
 * [Notebook 1](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)
   shows how to use Deepred-Mt on the command line to predict C-to-U editing
   sites in a FASTA file.
