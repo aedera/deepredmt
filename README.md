@@ -31,6 +31,13 @@ Research Institute for Signals, Systems and Computational Intelligence,
 </figure>
 
 
+## Quick access for single sequence submission
+
+You can use this [notebook](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/04_single_sequence_submission.ipynb)
+  to submit a DNA sequence to predict its editing sites with Deepred-Mt on a
+  remote server.
+
+
 ## Installation
 
 To install Deepred-Mt your computer needs to have installed [Python 3.7](https://www.python.org/), [pip](https://pip.pypa.io/en/stable/),
@@ -93,10 +100,6 @@ be additionally used to execute your own experiments using Deepred-Mt on
 
 * [Notebook 3](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb)
   shows how to train Deepred-Mt from scratch.
-
-* [Notebook 4](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/04_single_sequence_submission.ipynb)
-  can be used to submit DNA sequences to predict their editing sites with
-  Deepred-Mt on a remote server.
 
 ## Data
 
