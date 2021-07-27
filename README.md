@@ -17,7 +17,7 @@ network.
 Source code and instructions are provided for reproducibility of the main
 results of "_Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA
 Editing in Plant Mitochondria_", by A. A. Edera, I. Small, D. H. Milone, and
-M. V. Sanchez-Puerta.
+M. V. Sanchez-Puerta ([https://doi.org/10.1016/j.compbiomed.2021.104682](https://www.sciencedirect.com/science/article/abs/pii/S0010482521004765)).
 
 Research Institute for Signals, Systems and Computational Intelligence,
 [sinc(i)](https://sinc.unl.edu.ar/).
