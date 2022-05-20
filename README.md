@@ -42,7 +42,7 @@ Deepred-Mt, use the following link:
 **[Submit sequences](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/05_fasta_submission.ipynb)**
 
 **Note:** If difficulties are experimenting when submitting sequences, try to
-  use [Google Chrome](https://www.google.com/chrome/) as a web browser.
+  use [Google Chrome](https://www.google.com/chrome/) as the web browser.
 
 ## Installation
 
