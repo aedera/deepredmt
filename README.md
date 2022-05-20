@@ -84,14 +84,6 @@ deepredmt seqs.fas
 This command extracts cytidines from the FASTA file to make predictions based
 on their surrounding nucleotides.
 
-Instead of a FASTA file, Deepred-Mt can also take in a plain text file containing
-nucleotide windows of 41-bp. [Here](https://raw.githubusercontent.com/aedera/deepredmt/main/data/wins.txt)
-is an example file called `wins.txt`:
-
-```bash
-deepredmt wins.txt
-```
-
 ### Demo notebooks
 
 The following notebooks reproduce experiments in the article.
