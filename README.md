@@ -24,7 +24,7 @@ probable its editing is.
   </p>
 </figure>
 
-The score is computed from complex _cis_elements or motifs automatically
+The score is computed from complex _cis_ elements or motifs automatically
 extracted from the flanking bases by a multi-layer convolutional neural
 network, whose full architecture is schematically shown below.
 
