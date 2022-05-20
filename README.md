@@ -1,5 +1,11 @@
 # Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA Editing in Plant Mitochondria
 
+This repository contains the official implementation of Deepred-Mt, along with
+instructions for reproducing results presented in
+["_Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA Editing in Plant Mitochondria_"](https://www.sciencedirect.com/science/article/abs/pii/S0010482521004765),
+by A. A. Edera, I. Small, D. H. Milone, and
+M. V. Sanchez-Puerta. [Download PDF](https://sinc.unl.edu.ar/sinc-publications/2021/ESSM21/sinc_ESSM21.pdf).
+
 In land plants, the editosome is a highly sophisticated molecular machine able
 to bind organellar RNA molecules post-transcriptionally. It converts cytidines
 to uridines (C-to-U) at highly specific RNA positions called editing
@@ -27,12 +33,6 @@ is schematically shown below.
   <img src=fig/model-architecture.png alt="Deepred-Mt" width="600" style="vertical-align:middle"/>
   </p>
 </figure>
-
-This repository contains the official implementation of Deepred-Mt, along with
-instructions for reproducing results presented in
-["_Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA Editing in Plant Mitochondria_"](https://www.sciencedirect.com/science/article/abs/pii/S0010482521004765),
-by A. A. Edera, I. Small, D. H. Milone, and
-M. V. Sanchez-Puerta. [Download PDF](https://sinc.unl.edu.ar/sinc-publications/2021/ESSM21/sinc_ESSM21.pdf).
 
 ## Submit RNA sequences for predictions
 
