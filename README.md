@@ -104,16 +104,14 @@ The following notebooks reproduce experiments in the article.
 
 ## Data
 
-Experiments used [FASTA files](./data/fasta-files.tar.gz) containing
-mitochondrial protein sequences from 21 plant species. These files have 'E'
-nucleotides to indicate C-to-U editing sites, which were previously identified
-by using RNAseq data publicly available in the
+Experiments used three datasets built from
+[FASTA files](./data/fasta-files.tar.gz) containing mitochondrial protein
+sequences from 21 plant species. These files have 'E' nucleotides to indicate
+C-to-U editing sites, which were previously identified by using RNAseq data
+publicly available in the
 [European Nucleotide Archive](https://www.ebi.ac.uk/ena/browser/home).
 
-These FASTA files were used to construct the following three datasets for
-training and evaluating Deepred-Mt:
-
-| Data | Description |
+| Dataset | Description |
 |:-----|-------------|
 |[Training data](./data/training-data.tsv.gz)| 41-bp nucleotide windows whose center positions are either unedited (C) or edited (E) cytidines. Nucleotide windows are labeled according to both the nucleotide in their central positions (0/C, 1/E) and their corresponding editing extents (a value ranging from 0 to 1)|
 |[Task-related sequences](./data/task-related-sequences.tsv.gz)| Sequences used for the augmentation strategy proposed in the article. These sequences are 41-bp nucleotide windows whose center positions are thymidines homologous to one of the editing sites in the training data|
