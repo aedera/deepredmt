@@ -117,7 +117,7 @@ publicly available in the
 |[Task-related sequences](./data/task-related-sequences.tsv.gz)| Sequences used for the augmentation strategy proposed in the article. These sequences are 41-bp nucleotide windows whose center positions are thymidines homologous to one of the editing sites in the training data|
 |[Control data](./data/control-data.tsv.gz)| Control data containing fake editing signal "GGCG" within the downstream regions of nucleotide windows that are labeled as 1 (edited)|
 
-More information on the format of these data is provided in this [file](./data).
+More information on the data format is provided [here](./data).
 
 
 ## Contributing
