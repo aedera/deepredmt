@@ -24,7 +24,7 @@ is schematically shown below.
 
 <figure>
   <p align="center">
-  <img src=fig/model-architecture.png alt="Deepred-Mt" width="800" style="vertical-align:middle"/>
+  <img src=fig/model-architecture.png alt="Deepred-Mt" width="600" style="vertical-align:middle"/>
   </p>
 </figure>
 
