@@ -7,15 +7,15 @@ by A. A. Edera, I. Small, D. H. Milone, and
 M. V. Sanchez-Puerta. [Download PDF](https://sinc.unl.edu.ar/sinc-publications/2021/ESSM21/sinc_ESSM21.pdf).
 
 In land plants, the editosome is a highly sophisticated molecular machine able
-to bind organellar RNA molecules post-transcriptionally. It converts cytidines
-to uridines (C-to-U) at highly specific RNA positions called editing
-sites. RNA editing is governed by _cis_ elements that remain recalcitrant to
+to bind organellar RNAs post-transcriptionally to convert cytidines into
+uridines (C-to-U) at highly specific RNA positions called editing sites. RNA
+editing is governed by _cis_ elements that remain recalcitrant to
 characterization, limiting further advances on genetic engineering techniques
 for RNA manipulation.
 
-Deepred-Mt is a neural network able to predict C-to-U editing sites from
-mitochondrial RNA of angiosperms. Given an RNA sequence, consisting of a
-central cytidine flanked by 20 nucleotides on each side, Deepred-Mt scores how
+Deepred-Mt is a novel neural network able to predict C-to-U editing sites in
+angiosperm mitochondria. Given an RNA sequence, consisting of a central
+cytidine flanked by 20 nucleotides on each side, Deepred-Mt scores how
 probable its editing is.
 
 <figure>
@@ -24,9 +24,9 @@ probable its editing is.
   </p>
 </figure>
 
-The score is computed from motifs automatically extracted from the flanking
-bases by a multi-layer convolutional neural network, whose full architecture
-is schematically shown below.
+The score is computed from complex _cis_elements or motifs automatically
+extracted from the flanking bases by a multi-layer convolutional neural
+network, whose full architecture is schematically shown below.
 
 <figure>
   <p align="center">
