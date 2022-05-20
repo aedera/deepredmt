@@ -105,9 +105,9 @@ The following notebooks reproduce experiments in the article.
 ## Data
 
 Experiments used [FASTA files](./data/fasta-files.tar.gz) containing
-mitochondrial protein-encoding sequences from 21 plant species. These files
-have 'E' nucleotides to indicate C-to-U editing sites, which were previously
-identified by using RNAseq data publicly available in the
+mitochondrial protein sequences from 21 plant species. These files have 'E'
+nucleotides to indicate C-to-U editing sites, which were previously identified
+by using RNAseq data publicly available in the
 [European Nucleotide Archive](https://www.ebi.ac.uk/ena/browser/home).
 
 These FASTA files were used to construct the following three datasets for
