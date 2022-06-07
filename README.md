@@ -91,9 +91,9 @@ The following notebooks reproduce experiments in the article.
 
 | Description | Notebook |
 |:------------|:--------:|
-| Use Deepred-Mt on the command line to predict C-to-U editing sites from a given FASTA file|[Link](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)|
-| Compare the predictive performance of Deepred-Mt and state-of-the art methods for predicting editing sites| [Link](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb) |
-| Train Deepred-Mt from scratch| [Link](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb) |
+| Use Deepred-Mt on the command line to predict C-to-U editing sites from a given FASTA file|[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/01_prediction_from_fasta.ipynb)|
+| Compare the predictive performance of Deepred-Mt and state-of-the art methods for predicting editing sites| [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/02_reproduce_comparative_analysis.ipynb) |
+| Train Deepred-Mt from scratch| [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/aedera/deepredmt/blob/main/notebooks/03_deepredmt_training.ipynb) |
 
 ## Data
 
