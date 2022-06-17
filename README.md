@@ -118,15 +118,56 @@ More information on the data format is provided [here](./data).
 Deepred-Mt was compared to two state-of-the-art methods for predicting editing
 sites: PREP-Mt and PREPACT. The following figure shows precision-recall curves
 obtained from the predictions of each method. Deepred-Mt achieves the highest
-F1 scores and the best areas under the curves for two predictive scenarios:
-one excluding synonymous sites (dashed lines) and other including them (solid
-lines).
+F1 scores and the best areas under the curves (AUPRC) for two predictive
+scenarios: one excluding synonymous sites (dashed lines) and other including
+them (solid lines).
 
+<p align="center">
 <figure>
   <p align="center">
   <img src=fig/deepredmt-performance.png alt="Deepred-Mt performance" width="900" style="vertical-align:middle"/>
   </p>
 </figure>
+</p>
+
+<table>
+  <thead>
+  <tr>
+    <th rowspan="2">Method</th>
+    <th colspan="2">Excluded</th>
+    <th colspan="2">Included</th>
+  </tr>
+  <tr>
+    <th>AUPRC</th>
+    <th>F1</th>
+    <th>AUPRC</th>
+    <th>F1</th>
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+    <td>PREPACT</td>
+    <td>0.91</td>
+    <td>0.89</td>
+    <td>0.79</td>
+    <td>0.82</td>
+  </tr>
+  <tr>
+    <td>PREP-Mt</td>
+    <td>0.88</td>
+    <td>0.91</td>
+    <td>0.76</td>
+    <td>0.84</td>
+  </tr>
+  <tr>
+    <td>Deepred-Mt</td>
+    <td><b>0.96</b></td>
+    <td><b>0.92</b></td>
+    <td><b>0.91</b></td>
+    <td><b>0.86</b></td>
+  </tr>
+ </tbody>
+</table>
 
 
 ## Contributing
