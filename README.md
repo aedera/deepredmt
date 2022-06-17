@@ -113,6 +113,21 @@ publicly available in the
 More information on the data format is provided [here](./data).
 
 
+## Results
+
+Deepred-Mt was compared to two state-of-the-art methods for predicting editing
+sites: PREP-Mt and PREPACT. The following figure shows precision-recall curves
+obtained from the predictions of each method. They show that Deepred-Mt
+achieves the highest F1 scores for two predictive scenarios where synonymous
+sites are either excluded (dashed lines) or included (solid lines).
+
+<figure>
+  <p align="center">
+  <img src=fig/deepredmt-performance.png alt="Deepred-Mt performance" width="900" style="vertical-align:middle"/>
+  </p>
+</figure>
+
+
 ## Contributing
 
 Contributions from anyone are welcome. You can start by adding a new entry [here](https://github.com/aedera/deepredmt/issues).
