@@ -119,7 +119,7 @@ Deepred-Mt was compared to two state-of-the-art methods for predicting editing
 sites: PREP-Mt and PREPACT. The following figure shows precision-recall curves
 obtained from the predictions of each method. Deepred-Mt achieves the highest
 F1 scores and the best areas under the curves for two predictive scenarios:
-one including synonymous sites (dashed lines) and other excluding them (solid
+one excluding synonymous sites (dashed lines) and other including them (solid
 lines).
 
 <figure>
