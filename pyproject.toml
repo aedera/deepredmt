@@ -8,7 +8,7 @@ authors = ["Alejandro A. Edera <edera.alejandro@gmail.com>"]
 python = "^3.7"
 tensorflow = ">=2.4.1, <=2.5"
 scikit-learn = "*" #^0.20"
-numpy = ">=1.20"
+numpy = ">=1.19"
 
 [tool.poetry.scripts]
 deepredmt = "deepredmt.cli:deepredmt"
