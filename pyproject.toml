@@ -2,7 +2,7 @@
 name = "deepredmt"
 version = "0.1.0"
 description = "Neural-based approach for predicting editing sites in plant mitochondrial genomes."
-authors = ["Alejandro A. Edera <aedera@sinc.unl.edu.ar>"]
+authors = ["Alejandro A. Edera <edera.alejandro@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
