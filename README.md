@@ -72,7 +72,7 @@ Next, install Deepred-Mt from the sources
 pip install -U "deepredmt @ git+https://github.com/aedera/deepredmt.git"
 ```
 
-## Example usage
+## Usage
 
 ### Command line
 
@@ -100,11 +100,9 @@ The following notebooks reproduce experiments in the article.
 
 ## Data
 
-Experiments used three datasets built from
-[FASTA files](./data/fasta-files.tar.gz) containing mitochondrial protein
-sequences from 21 plant species. These files have 'E' nucleotides to indicate
-C-to-U editing sites, which were previously identified by using RNAseq data
-publicly available in the
+The experiments reported in the manuscript used three datasets built from
+these [FASTA files](./data/fasta-files.tar.gz), extracted from nucleotide sequences encoding mitochondrial proteins from 21 plant species. In these files, 'E' nucleotides indicate
+C-to-U editing sites identified by using published RNAseq data, obtained from the
 [European Nucleotide Archive](https://www.ebi.ac.uk/ena/browser/home).
 
 | Dataset | Description |
@@ -118,7 +116,7 @@ More information on the data format is provided [here](./data).
 
 ## Results
 
-Deepred-Mt was compared to two state-of-the-art methods for predicting editing
+In our experiments, Deepred-Mt was compared to two state-of-the-art methods for predicting editing
 sites: PREP-Mt and PREPACT. The following figure shows precision-recall curves
 obtained from the predictions of each method. Deepred-Mt achieves the highest
 F1 scores and the best areas under the curves (AUPRC) for two predictive
