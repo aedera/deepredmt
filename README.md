@@ -8,7 +8,7 @@ M. V. Sanchez-Puerta. [Download PDF](https://sinc.unl.edu.ar/sinc-publications/2
 
 In land plants, the editosome is a highly sophisticated molecular machine able
 to convert post-transcriptionally cytidines into uridines (C-to-U) at highly
-specific RNA positions called editing sites. This RNA editing is governed by
+specific RNA positions called editing sites. This RNA editing seems to be partially governed by
 _cis_ elements, which still remain recalcitrant to characterization.
 
 Deepred-Mt is a novel neural network able to predict C-to-U editing sites in
