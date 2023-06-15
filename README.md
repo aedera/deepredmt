@@ -45,6 +45,9 @@ Deepred-Mt, use the following link:
 **Note 2:** If difficulties are experienced when submitting sequences, try to
   use [Google Chrome](https://www.google.com/chrome/) as the web browser.
 
+
+If you encounter problems when submitting sequences please report [an issue](https://github.com/aedera/deepredmt/issues).
+
 ## Installation
 
 To install Deepred-Mt on your computer, the following dependencies must be
