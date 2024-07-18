@@ -1,3 +1,7 @@
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12774356.svg)](https://doi.org/10.5281/zenodo.12774356)
+
+
 # Deepred-Mt: Deep Representation Learning for Predicting C-to-U RNA Editing in Plant Mitochondria
 
 This repository contains the official implementation of Deepred-Mt, along with
