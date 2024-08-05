@@ -83,6 +83,6 @@ def predict_from_fasta(fasin, tf_model=None, batch_size=512):
 
     model = tf.keras.models.load_model(tf_model, compile='False')
     #model = keras.layers.TFSMLayer(tf_model, call_endpoint="serving_default")
-    x_rec, y_pred, _ = model.predict(x, batch_size=batch_size)
+    x_rec, y_pred, _ = model.predict(x, batch_size=batch_size, verbose=0)
 
     return raw_wins, y_pred
