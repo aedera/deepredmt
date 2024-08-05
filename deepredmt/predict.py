@@ -2,6 +2,7 @@ import sys
 import os
 
 import tensorflow as tf
+import keras
 import numpy as np
 
 from . import data_handler as dh
@@ -80,7 +81,8 @@ def predict_from_fasta(fasin, tf_model=None, batch_size=512):
     x = np.asarray(list(wins.values()))
     x = tf.one_hot(x, depth=4)
 
-    model = tf.keras.models.load_model(tf_model, compile='False')
+    #model = tf.keras.models.load_model(tf_model, compile='False')
+    model = keras.layers.TFSMLayer("saved_model", call_endpoint="serving_default")
     x_rec, y_pred, _ = model.predict(x, batch_size=batch_size)
 
     return raw_wins, y_pred
