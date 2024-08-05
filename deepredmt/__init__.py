@@ -14,6 +14,8 @@ _NT2ID = {
     'E': 4,
     'e': 5
 }
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # no tf warnings
+os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
 CANDIDATE_MODEL = '210520.tf'
 current_path = os.path.dirname(os.path.realpath(__file__))
@@ -27,4 +29,4 @@ from .predict import predict_from_fasta
 from .predict import get_vector_representations
 from .project import project
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # no tf warnings
+
